@@ -102,68 +102,26 @@ app.post('/process/login/:role?', async (req, res) => {
                 const isPasswordValid = await bcrypt.compare(paramPassword, user.password);
 
                 if (isPasswordValid) {
-                    req.session.userId = user.id;
-                    req.session.userName = user.name;
-                    req.session.userAge = user.age;
-
-                    console.log('로그인 성공: ' + user.name);
-                    res.send(user.name);
-                } else {
-                    console.log('로그인 실패: 비밀번호 불일치');
-                    res.status(401).send('<h2>로그인 실패: 비밀번호를 확인하세요</h2>');
-                }
-            } else {
-                console.log('로그인 실패: ID가 존재하지 않음');
-                res.status(401).send('<h2>로그인 실패: ID를 찾을 수 없습니다</h2>');
-            }
-        });
-    });
-});
-
-// 관리자 로그인 처리
-app.post('/process/admin/login', async (req, res) => {
-    const { id, password } = req.body; // 클라이언트로부터 받은 데이터
-
-    console.log('관리자 로그인 요청: ' + id);
-
-    pool.getConnection((err, conn) => {
-        if (err) {
-            console.log('Mysql getConnection error. aborted');
-            return res.status(500).send('<h1>SQL 연결 실패</h1>');
-        }
-
-        // admin 테이블에서 사용자 정보를 가져오기
-        const sql = 'SELECT id, name, password FROM admin WHERE id = ?';
-        conn.query(sql, [id], async (err, rows) => {
-            conn.release(); // 연결 반환
-
-            if (err) {
-                console.log('SQL 실행 중 오류 발생:', err);
-                return res.status(500).send('<h1>SQL 실행 실패</h1>');
-            }
-
-            console.log('쿼리 결과:', rows); // 쿼리 결과 로그
-
-            if (rows.length > 0) {
-                const admin = rows[0]; // 첫 번째 결과 행 가져오기
-                console.log('찾은 관리자 정보:', admin); // 관리자 정보 로그
-
-                // 비밀번호 확인
-                const isPasswordValid = await bcrypt.compare(password, admin.password);
-                console.log('입력된 비밀번호:', password); // 입력된 비밀번호 로그
-                console.log('저장된 해시:', admin.password); // 저장된 해시 로그
-                console.log('비밀번호 검증 결과:', isPasswordValid); // 비밀번호 검증 결과 로그
-
-                if (isPasswordValid) {
-                    // 로그인 성공 시 세션에 관리자 정보 저장
-                    req.session.adminId = admin.id; // 관리자 ID 저장
-                    req.session.adminName = admin.name; // 관리자 이름 저장
-
-                    console.log('관리자 로그인 성공: ' + admin.name);
-                    res.send(`
-                        <h2>로그인 성공</h2>
-                        <p>${admin.name}님, 환영합니다!</p>
-                    `); // 로그인 성공 메시지 반환
+                    // 세션에 정보 저장
+                    if (role === 'admin') {
+                        req.session.adminId = user.id;
+                        req.session.adminName = user.name;
+                        console.log('관리자 로그인 성공:', user.name);
+                        res.send(`<h2>관리자 로그인 성공</h2><p>${user.name}님, 환영합니다!</p>`);
+                    } else {
+                        req.session.userId = user.id;
+                        req.session.userName = user.name;
+                        req.session.userAge = user.age;
+                        console.log('사용자 로그인 성공:', user.name);
+                        res.send(user.name); // 사용자 이름 반환
+                    }
+                    
+                    req.session.save((err) => {
+                        if (err) {
+                            console.log('세션 저장 오류:', err);
+                            return res.status(500).send('<h2>세션 저장 실패</h2>');
+                        }
+                    });
                 } else {
                     console.log('로그인 실패: 비밀번호 불일치');
                     res.status(401).send('<h2>로그인 실패: 비밀번호를 확인하세요</h2>');
