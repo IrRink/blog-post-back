@@ -70,31 +70,27 @@ app.get('/process/session', (req, res) => {
     }
 });
 
-// 로그인 엔드포인트 (일반 사용자 및 관리자)
+// 로그인 처리
 app.post('/process/login/:role?', async (req, res) => {
     const paramId = req.body.userId;
     const paramPassword = req.body.password;
-    const role = req.params.role; // 역할 (일반 또는 관리자)
-
-    console.log(`${role === 'admin' ? '관리자' : '사용자'} 로그인 요청: ${paramId}`);
+    const role = req.params.role;
 
     pool.getConnection((err, conn) => {
         if (err) {
-            console.log('Mysql getConnection error. aborted');
-            return res.status(500).send('<h1>SQL 연결 실패</h1>');
+            return res.status(500).json({ message: 'SQL 연결 실패' });
         }
 
-        // 역할에 따라 SQL 쿼리 변경
         const sql = role === 'admin' 
             ? 'SELECT id, name, password FROM admin WHERE id = ?' 
             : 'SELECT id, name, age, password FROM users WHERE id = ?';
 
         conn.query(sql, [paramId], async (err, rows) => {
-            conn.release();
+            conn.release(); // 연결 해제는 항상 수행
 
             if (err) {
-                console.log('SQL 실행 중 오류 발생:', err);
-                return res.status(500).send('<h1>SQL 실행 실패</h1>');
+                console.error('SQL 실행 실패:', err); // SQL 실행 오류 로그 추가
+                return res.status(500).json({ message: 'SQL 실행 실패' });
             }
 
             if (rows.length > 0) {
@@ -102,33 +98,30 @@ app.post('/process/login/:role?', async (req, res) => {
                 const isPasswordValid = await bcrypt.compare(paramPassword, user.password);
 
                 if (isPasswordValid) {
-                    // 세션에 정보 저장
+                    req.session.userId = user.id;
+                    req.session.userName = user.name;
                     if (role === 'admin') {
-                        req.session.adminId = user.id;
-                        req.session.adminName = user.name;
-                        console.log('관리자 로그인 성공:', user.name);
-                        res.send(`<h2>관리자 로그인 성공</h2><p>${user.name}님, 환영합니다!</p>`);
+                        req.session.isAdmin = true;
                     } else {
-                        req.session.userId = user.id;
-                        req.session.userName = user.name;
                         req.session.userAge = user.age;
-                        console.log('사용자 로그인 성공:', user.name);
-                        res.send(user.name); // 사용자 이름 반환
                     }
-                    
+
+                    console.log('세션 저장 전:', req.session); // 세션 저장 전 로그
+
+                    // 세션 저장
                     req.session.save((err) => {
                         if (err) {
-                            console.log('세션 저장 오류:', err);
-                            return res.status(500).send('<h2>세션 저장 실패</h2>');
+                            console.error('세션 저장 중 오류:', err); // 세션 저장 오류 로그 추가
+                            return res.status(500).json({ message: '세션 저장 실패' });
                         }
+                        console.log('세션 저장 후:', req.session); // 세션 저장 후 로그
+                        return res.json({ message: `${user.name}님, 환영합니다!` });
                     });
                 } else {
-                    console.log('로그인 실패: 비밀번호 불일치');
-                    res.status(401).send('<h2>로그인 실패: 비밀번호를 확인하세요</h2>');
+                    return res.status(401).json({ message: '로그인 정보가 올바르지 않습니다.' });
                 }
             } else {
-                console.log('로그인 실패: ID가 존재하지 않음');
-                res.status(401).send('<h2>로그인 실패: ID를 찾을 수 없습니다</h2>');
+                return res.status(401).json({ message: '로그인 정보가 올바르지 않습니다.' });
             }
         });
     });
@@ -258,29 +251,45 @@ app.post('/process/addadmin', async (req, res) => {
     }
 });
 
-// 총 회원 수를 구하는 엔드포인트
-app.get('/process/userCount', (req, res) => {
+// 관리자 정보와 회원 수를 가져오는 API
+app.get('/process/adminAndUserCount', (req, res) => {
+    const sqlAdmin = 'SELECT admin_date FROM admin LIMIT 1'; // 첫 번째 관리자만 가져오기
+    const sqlUserCount = 'SELECT COUNT(*) AS userCount FROM users';
+
     pool.getConnection((err, conn) => {
         if (err) {
             console.log('Mysql getConnection error. aborted');
             return res.status(500).send('<h1>SQL 연결 실패</h1>');
         }
 
-        const sql = 'SELECT COUNT(*) AS count FROM users'; // 사용자 수를 계산하는 쿼리
-        conn.query(sql, (err, results) => {
-            conn.release(); // 연결 반환
-
+        conn.query(sqlAdmin, (err, adminRows) => {
             if (err) {
+                conn.release();
                 console.log('SQL 실행 중 오류 발생:', err);
                 return res.status(500).send('<h1>SQL 실행 실패</h1>');
             }
 
-            const userCount = results[0].count; // 사용자 수
-            console.log('총 회원 수:', userCount); // 콘솔에 총 회원 수 출력
-            res.json({ userCount }); // 클라이언트에 회원 수 반환
+            conn.query(sqlUserCount, (err, userCountRows) => {
+                conn.release(); // 연결 반환
+
+                if (err) {
+                    console.log('SQL 실행 중 오류 발생:', err);
+                    return res.status(500).send('<h1>SQL 실행 실패</h1>');
+                }
+
+                // 첫 번째 관리자 가입 날짜와 총 회원 수 응답
+                const adminDate = adminRows.length > 0 ? adminRows[0].admin_date : null;
+                const userCount = userCountRows[0].userCount;
+
+                res.json({
+                    admin_date: adminDate,
+                    userCount: userCount
+                });
+            });
         });
     });
 });
+
 
 // 사용자 정보를 가져오는 엔드포인트
 app.get('/process/user/:userId', (req, res) => {
