@@ -2,33 +2,38 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>세션 확인</title>
 </head>
 <body>
-    <h1>세션 확인 페이지</h1>
-    <button id="checkSessionBtn">로그인 여부 확인</button>
+    <h1>세션 정보</h1>
     <div id="sessionInfo"></div>
+    <button id="logoutButton">로그아웃</button>
 
     <script>
-        fetch('http://127.0.0.1:5500/process/session', {
-    method: 'GET',
-    credentials: 'include', // 쿠키 포함
-})
-.then(response => {
-    if (!response.ok) {
-        throw new Error('Network response was not ok');
-    }
-    return response.json();
-})
-.then(data => {
-    console.log('세션 데이터:', data);
-    document.getElementById('sessionInfo').innerText = `사용자: ${data.userName}, 나이: ${data.userAge}`;
-})
-.catch(error => {
-    console.error('세션 확인 중 오류 발생:', error);
-    document.getElementById('sessionInfo').innerText = '세션이 존재하지 않습니다.';
-});
+        async function checkSession() {
+            try {
+                const response = await fetch('/process/session');
+                if (!response.ok) {
+                    throw new Error('세션 확인 실패');
+                }
+                const sessionData = await response.json();
+                document.getElementById('sessionInfo').innerHTML = `
+                    사용자 ID: ${sessionData.userId}<br>
+                    이름: ${sessionData.userName}<br>
+                    나이: ${sessionData.userAge}
+                `;
+            } catch (error) {
+                console.error('세션 확인 중 오류 발생:', error);
+                document.getElementById('sessionInfo').innerHTML = '세션 정보를 가져오는 중 오류가 발생했습니다.';
+            }
+        }
+        
+        document.getElementById('logoutButton').onclick = async () => {
+            await fetch('/process/logout'); // 로그아웃 요청
+            window.location.href = 'index.html'; // 로그인 페이지로 이동
+        };
+
+        checkSession(); // 세션 정보 확인
     </script>
 </body>
 </html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>사용자 수정</title>
+</head>
+<body>
+    <h1>사용자 수정</h1>
+    <form id="userIdForm">
+        <label for="userId">사용자 ID:</label>
+        <input type="text" id="userId" required>
+        <button type="submit">정보 가져오기</button>
+    </form>
+
+    <div id="userInfo" style="display: none;">
+        <h2>사용자 정보 수정</h2>
+        <form id="editUserForm">
+            <label for="userName">이름:</label>
+            <input type="text" id="userName" required>
+            <label for="userAge">나이:</label>
+            <input type="number" id="userAge" required>
+            <button type="submit">수정하기</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('userIdForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const userId = document.getElementById('userId').value;
+
+            fetch(`/process/user/${userId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('사용자를 찾을 수 없습니다.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('userName').value = data.userName;
+                    document.getElementById('userAge').value = data.userAge;
+                    document.getElementById('userInfo').style.display = 'block';
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('editUserForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const userId = document.getElementById('userId').value;
+            const userName = document.getElementById('userName').value;
+            const userAge = document.getElementById('userAge').value;
+
+            fetch(`/process/editUser/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userName, userAge }),
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('수정 완료');
+                } else {
+                    alert('수정 실패');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>

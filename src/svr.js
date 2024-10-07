@@ -31,24 +31,25 @@ app.use(cors(corsOptions));
 
 // 세션 설정
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    secret: '0930', // 세션 암호화 키
     resave: false,
     saveUninitialized: true,
-    cookie: {
-        secure: false, // HTTPS 사용 시 true로 설정
-    },
+    cookie: { secure: false } // https 사용 시 true로 변경
 }));
 
-// 로그아웃 처리
-app.post('/logout', (req, res) => {
-    req.session.destroy(err => {
-        if (err) {
-            return res.status(500).json({ message: '로그아웃 실패' });
-        }
-        res.clearCookie('connect.sid'); // 쿠키 삭제
-        res.status(200).json({ message: '로그아웃 성공' });
-    });
+app.get('/process/session', (req, res) => {
+    if (req.session.userId) {
+        res.json({
+            userId: req.session.userId,
+            userName: req.session.userName,
+            userAge: req.session.userAge
+        });
+    } else {
+        res.status(401).json({ message: '세션 정보가 없습니다.' });
+    }
 });
+
+
 
 app.use(session({
     secret: process.env.SESSION_SECRET || '0930',
@@ -65,15 +66,17 @@ app.get('/process/session', (req, res) => {
             userAge: req.session.userAge
         });
     } else {
-        res.status(401).json({ message: '로그인하지 않았습니다' });
+        res.status(401).send('세션이 없습니다. 로그인해주세요.');
     }
 });
 
-app.post('/process/login', async (req, res) => {
-    const paramId = req.body.id;
+// 로그인 엔드포인트 (일반 사용자 및 관리자)
+app.post('/process/login/:role?', async (req, res) => {
+    const paramId = req.body.userId;
     const paramPassword = req.body.password;
+    const role = req.params.role; // 역할 (일반 또는 관리자)
 
-    console.log('로그인 요청: ' + paramId + ', ' + paramPassword);
+    console.log(`${role === 'admin' ? '관리자' : '사용자'} 로그인 요청: ${paramId}`);
 
     pool.getConnection((err, conn) => {
         if (err) {
@@ -81,7 +84,10 @@ app.post('/process/login', async (req, res) => {
             return res.status(500).send('<h1>SQL 연결 실패</h1>');
         }
 
-        const sql = 'SELECT id, name, age, password FROM users WHERE id = ?';
+        // 역할에 따라 SQL 쿼리 변경
+        const sql = role === 'admin' 
+            ? 'SELECT id, name, password FROM admin WHERE id = ?' 
+            : 'SELECT id, name, age, password FROM users WHERE id = ?';
 
         conn.query(sql, [paramId], async (err, rows) => {
             conn.release();
@@ -96,12 +102,26 @@ app.post('/process/login', async (req, res) => {
                 const isPasswordValid = await bcrypt.compare(paramPassword, user.password);
 
                 if (isPasswordValid) {
-                    req.session.userId = user.id;
-                    req.session.userName = user.name;
-                    req.session.userAge = user.age;
-
-                    console.log('로그인 성공: ' + user.name);
-                    res.send(user.name);
+                    // 세션에 정보 저장
+                    if (role === 'admin') {
+                        req.session.adminId = user.id;
+                        req.session.adminName = user.name;
+                        console.log('관리자 로그인 성공:', user.name);
+                        res.send(`<h2>관리자 로그인 성공</h2><p>${user.name}님, 환영합니다!</p>`);
+                    } else {
+                        req.session.userId = user.id;
+                        req.session.userName = user.name;
+                        req.session.userAge = user.age;
+                        console.log('사용자 로그인 성공:', user.name);
+                        res.send(user.name); // 사용자 이름 반환
+                    }
+                    
+                    req.session.save((err) => {
+                        if (err) {
+                            console.log('세션 저장 오류:', err);
+                            return res.status(500).send('<h2>세션 저장 실패</h2>');
+                        }
+                    });
                 } else {
                     console.log('로그인 실패: 비밀번호 불일치');
                     res.status(401).send('<h2>로그인 실패: 비밀번호를 확인하세요</h2>');
@@ -114,61 +134,6 @@ app.post('/process/login', async (req, res) => {
     });
 });
 
-// 관리자 로그인 처리
-app.post('/process/admin/login', async (req, res) => {
-    const { id, password } = req.body; // 클라이언트로부터 받은 데이터
-
-    console.log('관리자 로그인 요청: ' + id);
-
-    pool.getConnection((err, conn) => {
-        if (err) {
-            console.log('Mysql getConnection error. aborted');
-            return res.status(500).send('<h1>SQL 연결 실패</h1>');
-        }
-
-        // admin 테이블에서 사용자 정보를 가져오기
-        const sql = 'SELECT id, name, password FROM admin WHERE id = ?';
-        conn.query(sql, [id], async (err, rows) => {
-            conn.release(); // 연결 반환
-
-            if (err) {
-                console.log('SQL 실행 중 오류 발생:', err);
-                return res.status(500).send('<h1>SQL 실행 실패</h1>');
-            }
-
-            console.log('쿼리 결과:', rows); // 쿼리 결과 로그
-
-            if (rows.length > 0) {
-                const admin = rows[0]; // 첫 번째 결과 행 가져오기
-                console.log('찾은 관리자 정보:', admin); // 관리자 정보 로그
-
-                // 비밀번호 확인
-                const isPasswordValid = await bcrypt.compare(password, admin.password);
-                console.log('입력된 비밀번호:', password); // 입력된 비밀번호 로그
-                console.log('저장된 해시:', admin.password); // 저장된 해시 로그
-                console.log('비밀번호 검증 결과:', isPasswordValid); // 비밀번호 검증 결과 로그
-
-                if (isPasswordValid) {
-                    // 로그인 성공 시 세션에 관리자 정보 저장
-                    req.session.adminId = admin.id; // 관리자 ID 저장
-                    req.session.adminName = admin.name; // 관리자 이름 저장
-
-                    console.log('관리자 로그인 성공: ' + admin.name);
-                    res.send(`
-                        <h2>로그인 성공</h2>
-                        <p>${admin.name}님, 환영합니다!</p>
-                    `); // 로그인 성공 메시지 반환
-                } else {
-                    console.log('로그인 실패: 비밀번호 불일치');
-                    res.status(401).send('<h2>로그인 실패: 비밀번호를 확인하세요</h2>');
-                }
-            } else {
-                console.log('로그인 실패: ID가 존재하지 않음');
-                res.status(401).send('<h2>로그인 실패: ID를 찾을 수 없습니다</h2>');
-            }
-        });
-    });
-});
 
 // 아이디 중복 확인 처리
 app.get('/process/check-id', (req, res) => {
@@ -317,16 +282,43 @@ app.get('/process/userCount', (req, res) => {
     });
 });
 
-// 관리자 정보 가져오기
-app.get('/process/admininfo', (req, res) => {
+// 사용자 정보를 가져오는 엔드포인트
+app.get('/process/user/:userId', (req, res) => {
+    const userId = req.params.userId;
+
     pool.getConnection((err, conn) => {
         if (err) {
             console.log('Mysql getConnection error. aborted');
             return res.status(500).send('<h1>SQL 연결 실패</h1>');
         }
 
-        const sql = 'SELECT id, name, admin_date FROM admin';
-        conn.query(sql, (err, rows) => {
+        const sql = 'SELECT userName, userAge FROM users WHERE userId = ?';
+        conn.query(sql, [userId], (err, results) => {
+            conn.release(); // 연결 반환
+
+            if (err || results.length === 0) {
+                console.log('SQL 실행 중 오류 발생:', err);
+                return res.status(404).send('<h1>사용자를 찾을 수 없습니다.</h1>');
+            }
+
+            res.json(results[0]); // 사용자 정보 반환
+        });
+    });
+});
+
+// 사용자 정보를 수정하는 엔드포인트
+app.put('/process/editUser/:userId', (req, res) => {
+    const userId = req.params.userId;
+    const { userName, userAge } = req.body;
+
+    pool.getConnection((err, conn) => {
+        if (err) {
+            console.log('Mysql getConnection error. aborted');
+            return res.status(500).send('<h1>SQL 연결 실패</h1>');
+        }
+
+        const sql = 'UPDATE users SET userName = ?, userAge = ? WHERE userId = ?';
+        conn.query(sql, [userName, userAge, userId], (err, results) => {
             conn.release(); // 연결 반환
 
             if (err) {
@@ -334,10 +326,11 @@ app.get('/process/admininfo', (req, res) => {
                 return res.status(500).send('<h1>SQL 실행 실패</h1>');
             }
 
-            res.json(rows); // 결과를 JSON 형식으로 반환
+            res.status(200).send('<h1>사용자 정보가 수정되었습니다.</h1>'); // 성공 응답
         });
     });
 });
+
 
 
 // 로그아웃 처리
