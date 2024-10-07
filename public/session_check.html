@@ -27,7 +27,8 @@
                 document.getElementById('sessionInfo').innerHTML = '세션 정보를 가져오는 중 오류가 발생했습니다.';
             }
         }
-        
+
+        // 로그아웃 처리
         document.getElementById('logoutButton').onclick = async () => {
             await fetch('/process/logout'); // 로그아웃 요청
             window.location.href = 'index.html'; // 로그인 페이지로 이동

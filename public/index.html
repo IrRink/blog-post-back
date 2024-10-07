@@ -49,8 +49,8 @@
                 const result = await response.text();
                 if (response.ok) {
                     document.getElementById('result').innerHTML = `<span class="success">${result}</span>`;
-                    // 로그인 성공 시 리디렉션 (원하는 URL로 변경 가능)
-                    window.location.href = '/home'; // 예시 URL
+                    // 로그인 성공 시 수정 페이지로 리디렉션
+                    window.location.href = 'edit_user.html'; // 수정 페이지 URL로 변경
                 } else {
                     document.getElementById('result').innerHTML = `<span class="error">${result}</span>`;
                 }
