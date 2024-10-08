@@ -31,30 +31,16 @@ const pool = mysql.createPool({
     debug: false
 });
 
-// MySQL 세션 스토어 생성
-const sessionStore = new MySQLStore({
-    expiration: 86400000, // 1일
-    createDatabaseTable: true,
-    schema: {
-        tableName: 'sessions',
-        columnNames: {
-            session_id: 'session_id',
-            data: 'data',
-            expires: 'expires',
-        },
-    },
-}, pool);
-
 
 // 세션 미들웨어 설정
 app.use(session({
-    key: 'session_cookie_name',
+    name: 'session_cookie_name', // 원하는 쿠키 이름으로 변경
     secret: process.env.SESSION_SECRET || '0930',
-    store: sessionStore, // MySQL 세션 스토어 사용
     resave: false,
-    saveUninitialized: false,
-    cookie: { maxAge: 86400000 }
+    saveUninitialized: true,
+    cookie: { maxAge: 86400000, secure: false } // 1일
 }));
+
 
 // 세션 확인 라우트 추가
 app.get('/session', (req, res) => {
@@ -100,10 +86,11 @@ app.post('/process/login/:role?', async (req, res) => {
                     // 세션 저장 후 정보 출력
                     req.session.save(err => {
                         if (err) {
+                            console.error('세션 저장 중 오류:', err); // 에러 로그 출력
                             return res.status(500).json({ message: '세션 저장 실패' });
                         }
-                        console.log('로그인 후 세션:', req.session); // 세션 정보 출력
-                        return res.send(req.session.userName); // 사용자 이름만 반환
+                        console.log('로그인 후 세션:', req.session); // 세션 저장 확인
+                        return res.send(req.session.userName);
                     });
 
                 }
@@ -117,8 +104,7 @@ app.post('/process/login/:role?', async (req, res) => {
     });
 });
 
-// 세션 데이터 확인 페이지
-app.get('/process/session-data', (req, res) => {
+app.get('/session', (req, res) => {
     if (req.session.userId) {
         res.json({
             message: '세션 데이터가 존재합니다.',
@@ -147,7 +133,7 @@ app.post('/logout', (req, res) => {
 
 // 아이디 중복 체크
 app.get('/process/checkid/:userId', (req, res) => {
-    const userId = req.params.userId;
+    const userId = req.parZams.userId;
 
     pool.getConnection((err, conn) => {
         if (err) {

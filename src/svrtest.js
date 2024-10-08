@@ -3,11 +3,24 @@ const mysql = require('mysql2');
 const path = require('path');
 const static = require('serve-static');
 const bcrypt = require('bcrypt');
-const session = require('express-session');
+const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const dbconfig = require('../dbconfig/dbconfig.json');
 require('dotenv').config();
 
+const app = express();
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use('/public', static(path.join(__dirname, 'public')));
+
+const corsOptions = {
+    origin: ['http://localhost:3000', 'http://127.0.0.1:5500'],
+    methods: ['GET', 'POST', 'OPTIONS'],
+    credentials: true,
+};
+app.use(cors(corsOptions));
+
+// MySQL 연결 풀 생성
 const pool = mysql.createPool({
     connectionLimit: 10,
     host: dbconfig.host,
@@ -17,58 +30,10 @@ const pool = mysql.createPool({
     debug: false
 });
 
-const app = express();
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use('/public', static(path.join(__dirname, 'public')));
-
-const corsOptions = {
-    origin: ['http://localhost:3000', 'http://127.0.0.1:5500'], // 허용할 출처를 배열로 나열
-    methods: ['GET', 'POST', 'OPTIONS'],
-    credentials: true,
+// JWT 생성 함수
+const generateToken = (user) => {
+    return jwt.sign(user, process.env.JWT_SECRET || 'your_jwt_secret', { expiresIn: '1d' });
 };
-app.use(cors(corsOptions));
-
-// 세션 설정
-app.use(session({
-    secret: '0930', // 세션 암호화 키
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false } // https 사용 시 true로 변경
-}));
-
-app.get('/process/session', (req, res) => {
-    if (req.session.userId) {
-        res.json({
-            userId: req.session.userId,
-            userName: req.session.userName,
-            userAge: req.session.userAge
-        });
-    } else {
-        res.status(401).json({ message: '세션 정보가 없습니다.' });
-    }
-});
-
-
-
-app.use(session({
-    secret: process.env.SESSION_SECRET || '0930',
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false }
-}));
-
-app.get('/process/session', (req, res) => {
-    if (req.session.userId) {
-        res.json({
-            userId: req.session.userId,
-            userName: req.session.userName,
-            userAge: req.session.userAge
-        });
-    } else {
-        res.status(401).send('세션이 없습니다. 로그인해주세요.');
-    }
-});
 
 // 로그인 처리
 app.post('/process/login/:role?', async (req, res) => {
@@ -86,10 +51,9 @@ app.post('/process/login/:role?', async (req, res) => {
             : 'SELECT id, name, age, password FROM users WHERE id = ?';
 
         conn.query(sql, [paramId], async (err, rows) => {
-            conn.release(); // 연결 해제는 항상 수행
+            conn.release();
 
             if (err) {
-                console.error('SQL 실행 실패:', err); // SQL 실행 오류 로그 추가
                 return res.status(500).json({ message: 'SQL 실행 실패' });
             }
 
@@ -98,25 +62,8 @@ app.post('/process/login/:role?', async (req, res) => {
                 const isPasswordValid = await bcrypt.compare(paramPassword, user.password);
 
                 if (isPasswordValid) {
-                    req.session.userId = user.id;
-                    req.session.userName = user.name;
-                    if (role === 'admin') {
-                        req.session.isAdmin = true;
-                    } else {
-                        req.session.userAge = user.age;
-                    }
-
-                    console.log('세션 저장 전:', req.session); // 세션 저장 전 로그
-
-                    // 세션 저장
-                    req.session.save((err) => {
-                        if (err) {
-                            console.error('세션 저장 중 오류:', err); // 세션 저장 오류 로그 추가
-                            return res.status(500).json({ message: '세션 저장 실패' });
-                        }
-                        console.log('세션 저장 후:', req.session); // 세션 저장 후 로그
-                        return res.json({ message: `${user.name}님, 환영합니다!` });
-                    });
+                    const token = generateToken({ id: user.id, name: user.name, isAdmin: role === 'admin' });
+                    return res.json({ token, userName: user.name }); // 정상 응답
                 } else {
                     return res.status(401).json({ message: '로그인 정보가 올바르지 않습니다.' });
                 }
@@ -128,156 +75,124 @@ app.post('/process/login/:role?', async (req, res) => {
 });
 
 
-// 아이디 중복 확인 처리
-app.get('/process/check-id', (req, res) => {
-    const userId = req.query.userId;
+// 토큰 검증 미들웨어
+const authenticateToken = (req, res, next) => {
+    const token = req.headers['authorization'] && req.headers['authorization'].split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret', (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+};
+
+// 세션 확인 라우트 추가
+app.get('/session', authenticateToken, (req, res) => {
+    res.json(req.user);
+});
+
+// 로그아웃 엔드포인트 (토큰 삭제로 구현)
+app.post('/process/logout', (req, res) => {
+    res.send('로그아웃 되었습니다.'); // 실제로는 클라이언트에서 토큰을 삭제해야 함
+});
+
+// 아이디 중복 체크
+app.get('/process/checkid/:userId', (req, res) => {
+    const userId = req.params.userId;
 
     pool.getConnection((err, conn) => {
         if (err) {
-            console.log('Mysql getConnection error. aborted');
-            return res.status(500).send({ message: 'SQL 연결 실패' });
+            return res.status(500).json({ message: 'SQL 연결 실패' });
         }
 
         const sql = 'SELECT COUNT(*) AS count FROM users WHERE id = ?';
-        conn.query(sql, [userId], (err, results) => {
-            conn.release(); // 연결 반환
+        conn.query(sql, [userId], (err, rows) => {
+            conn.release();
 
             if (err) {
-                console.log('SQL 실행 중 오류 발생:', err);
-                return res.status(500).send({ message: 'SQL 실행 실패' });
+                return res.status(500).json({ message: 'SQL 실행 실패' });
             }
 
-            const count = results[0].count;
+            const count = rows[0].count;
             if (count > 0) {
-                // 아이디가 이미 존재함
-                res.send({ message: '이미 사용 중인 아이디입니다.' });
+                return res.status(409).json({ message: '이미 사용 중인 아이디입니다.' });
             } else {
-                // 아이디 사용 가능
-                res.send({ message: '사용 가능한 아이디입니다.' });
+                return res.status(200).json({ message: '사용 가능한 아이디입니다.' });
             }
         });
     });
 });
 
-// 사용자 추가 처리 (회원가입)
-app.post('/process/adduser', async (req, res) => {
-    const { id, name, age, password } = req.body; // 클라이언트로부터 받은 데이터
+// 사용자 및 관리자 추가
+app.post('/process/adduseroradmin', async (req, res) => {
+    const { userId, name, password, age } = req.body;
 
-    try {
-        // 비밀번호 해싱
-        const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const sql = 'INSERT INTO admin (id, name, password, age) VALUES (?, ?, ?, ?)';
+    
+    pool.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).json({ message: 'SQL 연결 실패' });
+        }
 
-        pool.getConnection((err, conn) => {
+        conn.query(sql, [userId, name, hashedPassword, age], (err, result) => {
+            conn.release();
+
             if (err) {
-                console.log('Mysql getConnection error. aborted');
-                return res.status(500).send('<h1>SQL 연결 실패</h1>');
+                return res.status(500).json({ message: '관리자가 이미 존재합니다.' });
             }
-
-            // 사용자 정보를 데이터베이스에 삽입
-            const sql = 'INSERT INTO users(id, name, age, password) VALUES(?, ?, ?, ?)';
-            conn.query(sql, [id, name, age, hashedPassword], (err, result) => {
-                conn.release(); // 연결 반환
-
-                if (err) {
-                    console.log('SQL 실행 중 오류 발생:', err);
-                    return res.status(500).send('<h1>SQL 실행 실패</h1>');
-                }
-
-                console.log('사용자 추가 성공');
-                // 회원가입 성공 후 메시지 제공
-                res.send(`
-                    회원가입 성공
-                `); // 성공 메시지 반환
-            });
+            return res.json({ message: '관리자 등록이 완료되었습니다.' });
         });
-    } catch (error) {
-        console.log('비밀번호 해싱 중 오류 발생:', error);
-        res.status(500).send('<h1>비밀번호 해싱 실패</h1>'); // 오류 메시지 반환
-    }
+    });
 });
 
-// 관리자 추가 처리 (회원가입)
-app.post('/process/addadmin', async (req, res) => {
-    const { id, name, age, password } = req.body; // 클라이언트로부터 받은 데이터
+// 사용자 추가
+app.post('/process/adduseroruser', async (req, res) => {
+    const { userId, name, age, password } = req.body;
 
-    try {
-        // 비밀번호 해싱
-        const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const sql = 'INSERT INTO users (id, name, age, password) VALUES (?, ?, ?, ?)';
 
-        pool.getConnection((err, conn) => {
+    pool.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).json({ message: 'SQL 연결 실패' });
+        }
+
+        conn.query(sql, [userId, name, age, hashedPassword], (err, result) => {
+            conn.release();
+
             if (err) {
-                console.log('Mysql getConnection error. aborted');
-                return res.status(500).send('<h1>SQL 연결 실패</h1>');
+                return res.status(500).json({ message: "동일한 아이디가 존재합니다." });
             }
-
-            // admin 테이블의 데이터 수를 확인
-            const checkAdminSql = 'SELECT COUNT(*) AS count FROM admin';
-            conn.query(checkAdminSql, (err, results) => {
-                if (err) {
-                    console.log('SQL 실행 중 오류 발생:', err);
-                    conn.release();
-                    return res.status(500).send('<h1>SQL 실행 실패</h1>');
-                }
-
-                const adminCount = results[0].count;
-
-                if (adminCount === 0) {
-                    // admin 테이블이 비어있다면 사용자 추가
-                    const sql = 'INSERT INTO admin(id, name, age, password) VALUES(?, ?, ?, ?)';
-                    conn.query(sql, [id, name, age, hashedPassword], (err, result) => {
-                        conn.release(); // 연결 반환
-
-                        if (err) {
-                            console.log('SQL 실행 중 오류 발생:', err);
-                            return res.status(500).send('<h1>SQL 실행 실패</h1>');
-                        }
-
-                        console.log('관리자 추가 성공');
-                        // 회원가입 성공 후 메시지 제공
-                        res.send(`
-                            관리자 추가 성공
-                        `); // 성공 메시지 반환
-                    });
-                } else {
-                    // admin 테이블에 데이터가 이미 존재하는 경우
-                    conn.release(); // 연결 반환
-                    return res.status(400).send('<h1>이미 관리자 계정이 존재합니다</h1>');
-                }
-            });
+            return res.json({ message: "회원가입이 완료되었습니다." });
         });
-    } catch (error) {
-        console.log('비밀번호 해싱 중 오류 발생:', error);
-        res.status(500).send('<h1>비밀번호 해싱 실패</h1>'); // 오류 메시지 반환
-    }
+    });
 });
 
 // 관리자 정보와 회원 수를 가져오는 API
 app.get('/process/adminAndUserCount', (req, res) => {
-    const sqlAdmin = 'SELECT admin_date FROM admin LIMIT 1'; // 첫 번째 관리자만 가져오기
+    const sqlAdmin = 'SELECT admin_date FROM admin LIMIT 1';
     const sqlUserCount = 'SELECT COUNT(*) AS userCount FROM users';
 
     pool.getConnection((err, conn) => {
         if (err) {
-            console.log('Mysql getConnection error. aborted');
             return res.status(500).send('<h1>SQL 연결 실패</h1>');
         }
 
         conn.query(sqlAdmin, (err, adminRows) => {
             if (err) {
                 conn.release();
-                console.log('SQL 실행 중 오류 발생:', err);
                 return res.status(500).send('<h1>SQL 실행 실패</h1>');
             }
 
             conn.query(sqlUserCount, (err, userCountRows) => {
-                conn.release(); // 연결 반환
+                conn.release();
 
                 if (err) {
-                    console.log('SQL 실행 중 오류 발생:', err);
                     return res.status(500).send('<h1>SQL 실행 실패</h1>');
                 }
 
-                // 첫 번째 관리자 가입 날짜와 총 회원 수 응답
                 const adminDate = adminRows.length > 0 ? adminRows[0].admin_date : null;
                 const userCount = userCountRows[0].userCount;
 
@@ -290,72 +205,29 @@ app.get('/process/adminAndUserCount', (req, res) => {
     });
 });
 
-
-// 사용자 정보를 가져오는 엔드포인트
-app.get('/process/user/:userId', (req, res) => {
-    const userId = req.params.userId;
-
+// 어드민 이름을 가져오는 API
+app.get('/process/admin-name', (req, res) => {
     pool.getConnection((err, conn) => {
         if (err) {
-            console.log('Mysql getConnection error. aborted');
-            return res.status(500).send('<h1>SQL 연결 실패</h1>');
+            return res.status(500).json({ message: 'SQL 연결 실패' });
         }
 
-        const sql = 'SELECT userName, userAge FROM users WHERE userId = ?';
-        conn.query(sql, [userId], (err, results) => {
-            conn.release(); // 연결 반환
-
-            if (err || results.length === 0) {
-                console.log('SQL 실행 중 오류 발생:', err);
-                return res.status(404).send('<h1>사용자를 찾을 수 없습니다.</h1>');
-            }
-
-            res.json(results[0]); // 사용자 정보 반환
-        });
-    });
-});
-
-// 사용자 정보를 수정하는 엔드포인트
-app.put('/process/editUser/:userId', (req, res) => {
-    const userId = req.params.userId;
-    const { userName, userAge } = req.body;
-
-    pool.getConnection((err, conn) => {
-        if (err) {
-            console.log('Mysql getConnection error. aborted');
-            return res.status(500).send('<h1>SQL 연결 실패</h1>');
-        }
-
-        const sql = 'UPDATE users SET userName = ?, userAge = ? WHERE userId = ?';
-        conn.query(sql, [userName, userAge, userId], (err, results) => {
-            conn.release(); // 연결 반환
+        const sql = 'SELECT name FROM admin LIMIT 1';
+        conn.query(sql, (err, rows) => {
+            conn.release();
 
             if (err) {
-                console.log('SQL 실행 중 오류 발생:', err);
-                return res.status(500).send('<h1>SQL 실행 실패</h1>');
+                return res.status(500).json({ message: 'SQL 실행 실패' });
             }
 
-            res.status(200).send('<h1>사용자 정보가 수정되었습니다.</h1>'); // 성공 응답
+            const adminName = rows.length > 0 ? rows[0].name : null;
+            res.json({ adminName });
         });
     });
 });
 
-
-
-app.post('/process/logout', (req, res) => {
-    req.session.destroy(err => {
-        if (err) {
-            return res.status(500).send('로그아웃 중 오류가 발생했습니다.');
-        }
-        
-        // 클라이언트 측에서 쿠키를 제거
-        res.clearCookie('connect.sid'); // 세션 쿠키 이름에 맞게 변경
-        
-        res.send('로그아웃 성공');
-    });
-});
-
-// 서버 시작
-app.listen(5500, () => {
-    console.log('listening on port 5500');
+// 포트 설정
+const PORT = 5500;
+app.listen(PORT, () => {
+    console.log(`서버가 ${PORT}번 포트에서 실행 중입니다.`);
 });
