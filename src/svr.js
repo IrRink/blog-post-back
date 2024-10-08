@@ -30,11 +30,10 @@ const pool = mysql.createPool({
     debug: false
 });
 
-
 // 세션 미들웨어 설정
 app.use(session({
     key: 'session_cookie_name',
-    secret: process.env.SESSION_SECRET || 'session_cookie_secret',
+    secret: process.env.SESSION_SECRET || '0930',
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -85,10 +84,10 @@ app.post('/process/login/:role?', async (req, res) => {
                         return res.send(req.session.userName); // 사용자 이름만 반환
                     });
                 } else {
-                    return res.status(401).json({ message: '로그인 정보가 올바르지 않습니다.' });
+                    return res.status(401).json('로그인 정보가 올바르지 않습니다.');
                 }
             } else {
-                return res.status(401).json({ message: '로그인 정보가 올바르지 않습니다.' });
+                return res.status(401).json('로그인 정보가 올바르지 않습니다.' );
             }
         });
     });
@@ -110,6 +109,7 @@ app.get('/process/check-session', (req, res) => {
         res.status(401).json({ message: '로그인이 필요합니다.' });
     }
 });
+
 
 // 아이디 중복 체크
 app.get('/process/checkid/:userId', (req, res) => {
