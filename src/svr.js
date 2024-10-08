@@ -219,6 +219,33 @@ app.get('/process/adminAndUserCount', (req, res) => {
     });
 });
 
+// 어드민 이름을 가져오는 API
+app.get('/process/admin-name', (req, res) => {
+    pool.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).json({ message: 'SQL 연결 실패' });
+        }
+
+        const sql = 'SELECT name FROM admin LIMIT 1'; // 첫 번째 어드민의 이름을 가져옴
+
+        conn.query(sql, (err, rows) => {
+            conn.release();
+
+            if (err) {
+                return res.status(500).json({ message: 'SQL 실행 실패' });
+            }
+
+            if (rows.length > 0) {
+                // 어드민 이름만 반환
+                return res.json(rows[0].name);
+            } else {
+                return res.status(404).json({ message: '어드민이 존재하지 않습니다.' });
+            }
+        });
+    });
+});
+
+
 // 사용자 정보 수정
 app.put('/process/editMyInfo', (req, res) => {
     if (!req.session.userId) {
