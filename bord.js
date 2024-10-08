@@ -1,28 +1,19 @@
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
-// const dbconfig = require('./dbconfig/dbconfig.json');
+const dbconfig = require('./dbconfig/dbconfig.json');
 const cors = require('cors');
 const app = express();
 
 
-//MySQL 연결 풀 설정
-var pool = mysql.createPool({
+const pool = mysql.createPool({
     connectionLimit: 10,
-    host: 'localhost',
-    user: 'root',
-    password: '0930',
-    database: 'bord'
+    host: dbconfig.host,
+    user: dbconfig.user,
+    password: dbconfig.password,
+    database: dbconfig.database,
+    debug: false
 });
-
-// const pool = mysql.createPool({
-//     connectionLimit: 10,
-//     host: dbconfig.host,
-//     user: dbconfig.user,
-//     password: dbconfig.password,
-//     database: dbconfig.database,
-//     debug: false
-// });
 
 const corsOptions = {
     origin: ['http://localhost:3000', 'http://127.0.0.1:5500', 'http://localhost:4000'], // 허용할 출처를 배열로 나열
