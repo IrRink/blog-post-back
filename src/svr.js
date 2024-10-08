@@ -244,11 +244,8 @@ app.get('/process/adminAndUserCount', (req, res) => {
                 const adminDate = adminRows.length > 0 ? adminRows[0].admin_date : null;
                 const userCount = userCountRows[0].userCount;
 
-                // 날짜를 원하는 형식으로 포맷팅
-                const formattedAdminDate = adminDate ? formatDate(adminDate) : null;
-
                 res.json({
-                    admin_date: formattedAdminDate,
+                    admin_date: adminDate,
                     userCount: userCount
                 });
             });
@@ -256,14 +253,6 @@ app.get('/process/adminAndUserCount', (req, res) => {
     });
 });
 
-// 날짜 포맷팅 함수
-function formatDate(date) {
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`; // "YYYY-MM-DD" 형식으로 반환
-}
 
 
 // 어드민 이름을 가져오는 API
