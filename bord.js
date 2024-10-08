@@ -1,16 +1,27 @@
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
+const dbconfig = require('./dbconfig/dbconfig.json');
+const cors = require('cors');
 const app = express();
 
-// MySQL 연결 풀 설정
-var pool = mysql.createPool({
+
+const pool = mysql.createPool({
     connectionLimit: 10,
-    host: 'localhost',
-    user: 'root',
-    password: '0930',
-    database: 'bord'
+    host: dbconfig.host,
+    user: dbconfig.user,
+    password: dbconfig.password,
+    database: dbconfig.database,
+    debug: false
 });
+
+const corsOptions = {
+    origin: ['http://localhost:3000', 'http://127.0.0.1:5500', 'http://localhost:4000'], // 허용할 출처를 배열로 나열
+    methods: ['GET', 'POST', 'OPTIONS'],
+    credentials: true,
+};
+app.use(cors(corsOptions));
+
 
 // bodyParser 설정
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -43,6 +54,7 @@ const checkAdminStatus = (userId, callback) => {
 app.post('/add-post', (req, res) => {
     const title = req.body.title;     
     const bordText = req.body.bord_text;  
+    const subtitle = req.body.subtitle;
 
     pool.getConnection(function (err, connection) {
         if (err) {
@@ -50,8 +62,8 @@ app.post('/add-post', (req, res) => {
             return res.status(500).json({ message: "Database connection error" });
         }
 
-        const insertQuery = 'INSERT INTO bordtable (title, bord_text, id) VALUES (?, ?, ?)';
-        connection.execute(insertQuery, [title, bordText, loggedInUserId], function (err, result) {
+        const insertQuery = 'INSERT INTO bordtable (title, subtitle ,bord_text, id) VALUES (?, ?, ?, ?)';
+        connection.execute(insertQuery, [title, subtitle ,bordText, loggedInUserId], function (err, result) {
             connection.release();
             if (err) {
                 console.error("Error inserting post: " + err);
