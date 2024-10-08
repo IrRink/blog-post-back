@@ -9,6 +9,7 @@
         #result { margin-top: 10px; }
         .error { color: red; }
         .success { color: green; }
+        #logoutButton { display: none; } /* 초기에는 숨김 */
     </style>
 </head>
 <body>
@@ -24,6 +25,7 @@
 
     <div id="result"></div>
     <button id="signupButton" onclick="window.location.href='signup.html'">회원가입</button>
+    <button id="logoutButton" onclick="logout()">로그아웃</button> <!-- 로그아웃 버튼 추가 -->
 
     <script>
         document.getElementById('loginForm').onsubmit = async (event) => {
@@ -49,8 +51,8 @@
                 const result = await response.text();
                 if (response.ok) {
                     document.getElementById('result').innerHTML = `<span class="success">${result}</span>`;
-                    // 로그인 성공 시 수정 페이지로 리디렉션
-                    // window.location.href = 'edit_user.html   '; // 수정 페이지 URL로 변경
+                    document.getElementById('logoutButton').style.display = 'inline'; // 로그인 성공 시 로그아웃 버튼 보이기
+                    // window.location.href = 'edit_user.html'; // 수정 페이지 URL로 변경
                 } else {
                     document.getElementById('result').innerHTML = `<span class="error">${result}</span>`;
                 }
@@ -59,6 +61,28 @@
                 document.getElementById('result').innerHTML = `<span class="error">로그인 요청 중 오류가 발생했습니다.</span>`;
             }
         };
+
+        // 로그아웃 함수
+        async function logout() {
+            try {
+                const response = await fetch('http://localhost:5500/process/logout', {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    document.getElementById('result').innerHTML = `<span class="success">로그아웃 되었습니다.</span>`;
+                    document.getElementById('logoutButton').style.display = 'none'; // 로그아웃 후 버튼 숨김
+                    // 로그인 페이지로 리디렉션
+                    window.location.href = 'index.html'; // 로그인 페이지 URL로 변경
+                } else {
+                    const result = await response.text();
+                    document.getElementById('result').innerHTML = `<span class="error">${result}</span>`;
+                }
+            } catch (error) {
+                console.error('로그아웃 요청 중 오류 발생:', error);
+                document.getElementById('result').innerHTML = `<span class="error">로그아웃 요청 중 오류가 발생했습니다.</span>`;
+            }
+        }
     </script>
 </body>
 </html>

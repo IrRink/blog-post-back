@@ -4,6 +4,7 @@ const path = require('path');
 const static = require('serve-static');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
 const cors = require('cors');
 const dbconfig = require('../dbconfig/dbconfig.json');
 require('dotenv').config();
@@ -30,16 +31,36 @@ const pool = mysql.createPool({
     debug: false
 });
 
+// MySQL 세션 스토어 생성
+const sessionStore = new MySQLStore({
+    expiration: 86400000, // 1일
+    createDatabaseTable: true,
+    schema: {
+        tableName: 'sessions',
+        columnNames: {
+            session_id: 'session_id',
+            data: 'data',
+            expires: 'expires',
+        },
+    },
+}, pool);
+
+
 // 세션 미들웨어 설정
 app.use(session({
     key: 'session_cookie_name',
     secret: process.env.SESSION_SECRET || '0930',
+    store: sessionStore, // MySQL 세션 스토어 사용
     resave: false,
     saveUninitialized: false,
-    cookie: {
-        maxAge: 1000 * 60 * 60 * 24 // 쿠키 유효 기간 (예: 1일)
-    }
+    cookie: { maxAge: 86400000 }
 }));
+
+// 세션 확인 라우트 추가
+app.get('/session', (req, res) => {
+    console.log('현재 세션:', req.session); // 세션 정보 로그
+    res.json(req.session); // 세션 정보를 JSON으로 반환
+});
 
 // 로그인 처리
 app.post('/process/login/:role?', async (req, res) => {
@@ -75,15 +96,18 @@ app.post('/process/login/:role?', async (req, res) => {
                     } else {
                         req.session.userAge = user.age;
                     }
-
+            
+                    // 세션 저장 후 정보 출력
                     req.session.save(err => {
                         if (err) {
                             return res.status(500).json({ message: '세션 저장 실패' });
                         }
-                        // 로그인 성공 시 사용자 이름만 반환
+                        console.log('로그인 후 세션:', req.session); // 세션 정보 출력
                         return res.send(req.session.userName); // 사용자 이름만 반환
                     });
-                } else {
+
+                }
+                 else {
                     return res.status(401).json('로그인 정보가 올바르지 않습니다.');
                 }
             } else {
@@ -93,21 +117,31 @@ app.post('/process/login/:role?', async (req, res) => {
     });
 });
 
-
-
-// 세션 확인 API
-app.get('/process/check-session', (req, res) => {
+// 세션 데이터 확인 페이지
+app.get('/process/session-data', (req, res) => {
     if (req.session.userId) {
         res.json({
-            message: '세션이 존재합니다.',
+            message: '세션 데이터가 존재합니다.',
             userId: req.session.userId,
             userName: req.session.userName,
             userAge: req.session.userAge,
             isAdmin: req.session.isAdmin || false
         });
     } else {
-        res.status(401).json({ message: '로그인이 필요합니다.' });
+        res.status(401).json({ message: '세션 데이터가 없습니다. 로그인이 필요합니다.' });
     }
+});
+
+
+app.post('/logout', (req, res) => {
+    console.log('로그아웃 요청 전 세션:', req.session); // 로그아웃 요청 시 세션 정보 출력
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).json({ message: '로그아웃 실패' });
+        }
+        res.clearCookie('session_cookie_name'); // 쿠키 삭제
+        res.json({ message: '로그아웃 성공' });
+    });
 });
 
 
@@ -161,7 +195,6 @@ app.post('/process/adduseroradmin', async (req, res) => {
     });
 });
 
-
 // 사용자 추가
 app.post('/process/adduseroruser', async (req, res) => {
     const { userId, name, age, password } = req.body;
@@ -211,14 +244,27 @@ app.get('/process/adminAndUserCount', (req, res) => {
                 const adminDate = adminRows.length > 0 ? adminRows[0].admin_date : null;
                 const userCount = userCountRows[0].userCount;
 
+                // 날짜를 원하는 형식으로 포맷팅
+                const formattedAdminDate = adminDate ? formatDate(adminDate) : null;
+
                 res.json({
-                    admin_date: adminDate,
+                    admin_date: formattedAdminDate,
                     userCount: userCount
                 });
             });
         });
     });
 });
+
+// 날짜 포맷팅 함수
+function formatDate(date) {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`; // "YYYY-MM-DD" 형식으로 반환
+}
+
 
 // 어드민 이름을 가져오는 API
 app.get('/process/admin-name', (req, res) => {
@@ -227,8 +273,7 @@ app.get('/process/admin-name', (req, res) => {
             return res.status(500).json({ message: 'SQL 연결 실패' });
         }
 
-        const sql = 'SELECT name FROM admin LIMIT 1'; // 첫 번째 어드민의 이름을 가져옴
-
+        const sql = 'SELECT name FROM admin LIMIT 1';
         conn.query(sql, (err, rows) => {
             conn.release();
 
@@ -236,43 +281,14 @@ app.get('/process/admin-name', (req, res) => {
                 return res.status(500).json({ message: 'SQL 실행 실패' });
             }
 
-            if (rows.length > 0) {
-                // 어드민 이름만 반환
-                return res.json(rows[0].name);
-            } else {
-                return res.status(404).json({ message: '어드민이 존재하지 않습니다.' });
-            }
+            const adminName = rows.length > 0 ? rows[0].name : null;
+            res.json({ adminName });
         });
     });
 });
 
-
-// 사용자 정보 수정
-app.put('/process/editMyInfo', (req, res) => {
-    if (!req.session.userId) {
-        return res.status(401).json({ message: '로그인이 필요합니다.' });
-    }
-
-    const { userName, userAge } = req.body;
-
-    const sql = 'UPDATE users SET name = ?, age = ? WHERE id = ?';
-    pool.getConnection((err, conn) => {
-        if (err) {
-            return res.status(500).json({ message: 'SQL 연결 실패' });
-        }
-
-        conn.query(sql, [userName, userAge, req.session.userId], (err, result) => {
-            conn.release();
-
-            if (err) {
-                return res.status(500).json({ message: 'SQL 실행 실패' });
-            }
-
-            return res.json({ message: '사용자 정보가 수정되었습니다.' });
-        });
-    });
-});
-
-app.listen(5500, () => {
-    console.log('서버가 포트 5500에서 시작되었습니다.');
+// 서버 시작
+const PORT = process.env.PORT || 5500;
+app.listen(PORT, () => {
+    console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
 });
