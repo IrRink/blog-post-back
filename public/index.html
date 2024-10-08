@@ -28,6 +28,26 @@
     <button id="logoutButton" onclick="logout()">로그아웃</button> <!-- 로그아웃 버튼 추가 -->
 
     <script>
+        // 페이지 로드 시 세션 상태 확인
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('http://localhost:5500/session', {
+                    method: 'GET',
+                    credentials: 'include' // 쿠키를 포함하여 요청
+                });
+
+                if (response.ok) {
+                    const sessionData = await response.json();
+                    document.getElementById('result').innerHTML = `<span class="success">${sessionData.userName}님, 환영합니다!</span>`;
+                    document.getElementById('logoutButton').style.display = 'inline'; // 로그인된 상태에서 로그아웃 버튼 보이기
+                } else {
+                    document.getElementById('result').innerHTML = `<span class="error">로그인이 필요합니다.</span>`;
+                }
+            } catch (error) {
+                console.error('세션 확인 중 오류 발생:', error);
+            }
+        });
+
         document.getElementById('loginForm').onsubmit = async (event) => {
             event.preventDefault();
             const formData = new FormData(event.target);
@@ -65,8 +85,9 @@
         // 로그아웃 함수
         async function logout() {
             try {
-                const response = await fetch('http://localhost:5500/process/logout', {
-                    method: 'POST'
+                const response = await fetch('http://localhost:5500/logout', {
+                    method: 'POST',
+                    credentials: 'include' // 쿠키를 포함하여 요청
                 });
 
                 if (response.ok) {
