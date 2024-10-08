@@ -3,38 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>세션 확인</title>
-</head>
-<body>
-    <h1>세션 정보</h1>
-    <div id="sessionInfo"></div>
-    <button id="logoutButton">로그아웃</button>
-
     <script>
         async function checkSession() {
             try {
-                const response = await fetch('/process/session');
+                const response = await fetch('/process/check-session', {
+                    method: 'GET',
+                    credentials: 'include' // 세션 쿠키를 포함
+                });
+                
                 if (!response.ok) {
-                    throw new Error('세션 확인 실패');
+                    throw new Error('Network response was not ok');
                 }
-                const sessionData = await response.json();
-                document.getElementById('sessionInfo').innerHTML = `
-                    사용자 ID: ${sessionData.userId}<br>
-                    이름: ${sessionData.userName}<br>
-                    나이: ${sessionData.userAge}
-                `;
+
+                const data = await response.json();
+                console.log('Session data:', data);
             } catch (error) {
                 console.error('세션 확인 중 오류 발생:', error);
-                document.getElementById('sessionInfo').innerHTML = '세션 정보를 가져오는 중 오류가 발생했습니다.';
             }
         }
 
-        // 로그아웃 처리
-        document.getElementById('logoutButton').onclick = async () => {
-            await fetch('/process/logout'); // 로그아웃 요청
-            window.location.href = 'index.html'; // 로그인 페이지로 이동
-        };
-
-        checkSession(); // 세션 정보 확인
+        window.onload = checkSession;
     </script>
+</head>
+<body>
+    <h1>세션 확인 페이지</h1>
+    <div id="sessionInfo"></div>
 </body>
 </html>
