@@ -81,14 +81,8 @@ app.post('/process/login/:role?', async (req, res) => {
                         if (err) {
                             return res.status(500).json({ message: '세션 저장 실패' });
                         }
-                        // 로그인 성공 시 JSON 응답 보내기
-                        return res.json({
-                            message: '로그인 성공',
-                            userId: req.session.userId,
-                            userName: req.session.userName,
-                            userAge: req.session.userAge,
-                            isAdmin: req.session.isAdmin || false
-                        });
+                        // 로그인 성공 시 사용자 이름만 반환
+                        return res.send(req.session.userName); // 사용자 이름만 반환
                     });
                 } else {
                     return res.status(401).json({ message: '로그인 정보가 올바르지 않습니다.' });
@@ -99,6 +93,8 @@ app.post('/process/login/:role?', async (req, res) => {
         });
     });
 });
+
+
 
 // 세션 확인 API
 app.get('/process/check-session', (req, res) => {
