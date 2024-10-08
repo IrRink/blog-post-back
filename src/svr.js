@@ -140,17 +140,17 @@ app.get('/process/checkid/:userId', (req, res) => {
 
 // 사용자 및 관리자 추가
 app.post('/process/adduseroradmin', async (req, res) => {
-    const { userId, name, password } = req.body;
+    const { userId, name, password, age } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const sql = 'INSERT INTO admin (id, name, password) VALUES (?, ?, ?)';
+    const sql = 'INSERT INTO admin (id, name, password, age) VALUES (?, ?, ?, ?)';
     
     pool.getConnection((err, conn) => {
         if (err) {
             return res.status(500).json({ message: 'SQL 연결 실패' });
         }
 
-        conn.query(sql, [userId, name, hashedPassword], (err, result) => {
+        conn.query(sql, [userId, name, hashedPassword, age], (err, result) => {
             conn.release();
 
             if (err) {
@@ -160,6 +160,7 @@ app.post('/process/adduseroradmin', async (req, res) => {
         });
     });
 });
+
 
 // 사용자 추가
 app.post('/process/adduseroruser', async (req, res) => {
