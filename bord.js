@@ -185,6 +185,7 @@ app.get('/edit-post/:postId', (req, res) => {
 app.post('/update-post/:postId', (req, res) => {
     const postId = req.params.postId;
     const updatedTitle = req.body.title;
+    const updatesubTitle = req.body.subtitle;
     const updatedContent = req.body.bord_text;
 
     pool.getConnection((err, connection) => {
@@ -193,8 +194,8 @@ app.post('/update-post/:postId', (req, res) => {
             return res.status(500).json({ message: "Database connection error" });
         }
 
-        const updateQuery = 'UPDATE bordtable SET title = ?, bord_text = ? WHERE num = ?';
-        connection.execute(updateQuery, [updatedTitle, updatedContent, postId], (err, result) => {
+        const updateQuery = 'UPDATE bordtable SET title = ?, subtitle = ?, bord_text = ? WHERE num = ?';
+        connection.execute(updateQuery, [updatedTitle, updatesubTitle, updatedContent, postId], (err, result) => {
             connection.release();
 
             if (err) {
