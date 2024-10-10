@@ -56,9 +56,9 @@
                 userName: formData.get('userName'), // 사용자 이름
                 userAge: parseInt(formData.get('userAge'), 10), // 나이
                 password: formData.get('password'), // 비밀번호
-                isAdmin: document.getElementById('adminCheckbox').checked // 관리자 여부 추가
             };
-
+            
+            const isAdmin= document.getElementById('adminCheckbox').checked // 관리자 여부 추가
             const signupUrl = data.isAdmin 
                 ? 'http://localhost:5500/process/adduseroradmin' // 관리자 추가 URL
                 : 'http://localhost:5500/process/adduseroruser'; // 일반 사용자 추가 URL
