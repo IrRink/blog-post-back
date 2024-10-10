@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>세션 확인</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>세션 확인</h1>
+    <button id="checkSessionButton">세션 확인</button>
+
+    <script>
+        document.getElementById('checkSessionButton').addEventListener('click', async () => {
+            try {
+                const response = await axios.get('http://localhost:5500/process/session', { withCredentials: true });
+                console.log('세션 확인:', response.data);
+                alert(response.data.message); // 세션이 유효하다는 메시지 표시
+            } catch (error) {
+                console.error('세션 확인 중 오류 발생:', error);
+                alert('세션 확인 중 오류가 발생했습니다: ' + error.response.data.message);
+            }
+        });
+    </script>
+</body>
+</html>
