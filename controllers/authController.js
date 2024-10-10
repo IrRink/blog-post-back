@@ -39,7 +39,7 @@ exports.login = (pool) => (req, res) => {
             req.session.userName = user.name; // 세션에 사용자 이름 저장
             req.session.userAge = user.age; // 세션에 사용자 나이 저장
 
-            res.status(200).json({ message: '로그인 성공', userId: user.id, userName: user.name });
+            res.status(200).json(user.name );
         });
     });
 };
