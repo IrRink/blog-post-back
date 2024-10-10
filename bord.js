@@ -12,7 +12,8 @@ const pool = mysql.createPool({
     user: dbconfig.user,
     password: dbconfig.password,
     database: dbconfig.database,
-    debug: false
+    debug: false,
+    dateStrings: true
 });
 
 const corsOptions = {
