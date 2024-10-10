@@ -10,6 +10,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const { bordinsert, bordselect, bordnumselect, bordedit, bordupdate, borddelete } = require("./controllers/bordController");
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -30,7 +31,7 @@ const pool = mysql.createPool({
     user: dbconfig.user,
     password: dbconfig.password,
     database: dbconfig.database,
-    debug: false,
+    debug: false
 });
 
 // 세션 미들웨어 설정
@@ -52,6 +53,13 @@ app.use(session({
 // 라우트 설정
 app.use('/process', authRoutes(pool)); // 인증 관련 라우트
 app.use('/process', userRoutes(pool)); // 사용자 관련 라우트
+app.post('/add-post', bordinsert.inspost); // 게시글을 올리는 페이지
+app.get('/blogbord', bordselect.selpost); // 게시글을 보여주는 페이지
+app.get('/post/:postId', bordnumselect.selpost2); // 개별 게시글을 보여주는 페이지
+app.get('/edit-post/:postId', bordedit.uppost); // 게시글 수정 화면
+app.post('/update-post/:postId', bordupdate.uppost2); // 게시글 업데이트
+app.post('/delete-post/:postId', borddelete.delpost); // 게시글 삭제 
+
 // 서버 실행
 const port = 5500;
 app.listen(port, () => {
