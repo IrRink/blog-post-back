@@ -10,7 +10,11 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+<<<<<<< HEAD
 const { bordinsert, bordselect, bordnumselect, bordedit, bordupdate, borddelete } = require("./controllers/bordController");
+=======
+const adminRoutes = require('./routes/adminRoutes');
+>>>>>>> 5958198b9fc25f91ba4d3fd31149a26aea2465c4
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -51,6 +55,7 @@ app.use(session({
 }));
 
 // 라우트 설정
+app.use('/process', adminRoutes(pool));
 app.use('/process', authRoutes(pool)); // 인증 관련 라우트
 app.use('/process', userRoutes(pool)); // 사용자 관련 라우트
 app.post('/add-post', bordinsert.inspost); // 게시글을 올리는 페이지
