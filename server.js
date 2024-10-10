@@ -10,6 +10,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -50,6 +51,7 @@ app.use(session({
 }));
 
 // 라우트 설정
+app.use('/process', adminRoutes(pool));
 app.use('/process', authRoutes(pool)); // 인증 관련 라우트
 app.use('/process', userRoutes(pool)); // 사용자 관련 라우트
 // 서버 실행
