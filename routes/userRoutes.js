@@ -1,11 +1,15 @@
 const express = require("express");
-const { addUser } = require("../controllers/userController");
-const checkId = require("../controllers/checkId");
+const userController = require("../controllers/userController");
 const router = express.Router();
 
+// 사용자 등록 라우트
+router.post("/register", userController.registerUserController);
+
+// 사용자 로그인 라우트
+router.post("/login", userController.loginUserController);
+
+// 모듈을 export할 때 pool을 매개변수로 받아서 사용할 수 있도록 합니다.
 module.exports = (pool) => {
-  router.post("/adduseroradmin", addUser(pool)); // 사용자 등록
-  router.post("/adduseroruser", addUser(pool));
-  router.get("/checkid/:userId", checkId(pool)); // 아이디 중복 체크
+  // 필요한 경우, 라우트 핸들러에 pool을 전달할 수 있습니다.
   return router;
 };

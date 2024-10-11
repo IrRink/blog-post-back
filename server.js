@@ -1,13 +1,11 @@
+// index.js
 const express = require("express");
-const mysql = require("mysql2");
 const path = require("path");
 const static = require("serve-static");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
 const cors = require("cors");
-const dbconfig = require("./dbconfig/dbconfig.json");
-require("dotenv").config();
-
+const pool = require("./models/pool"); // pool.js에서 pool을 불러옴
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/userRoutes");
@@ -19,29 +17,18 @@ const {
   bordupdate,
   borddelete,
 } = require("./controllers/bordController");
+
 const app = express();
-app.use(express.static(path.join("views", "build")))
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use("/public", static(path.join(__dirname, "public")));
 
 const corsOptions = {
-  origin: ["http://localhost:3000", "http://192.168.99.115:3000","http://localhost:5500" ],
-  methods: ["GET", "POST","DELETE", "OPTIONS"],
+  origin: ["http://localhost:3000", "http://192.168.99.115:3000", "http://localhost:5500"],
+  methods: ["GET", "POST", "DELETE", "OPTIONS"],
   credentials: true,
 };
 app.use(cors(corsOptions));
-
-// MySQL 연결 풀 생성
-const pool = mysql.createPool({
-  connectionLimit: 10,
-  host: dbconfig.host,
-  user: dbconfig.user,
-  password: dbconfig.password,
-  database: dbconfig.database,
-  debug: false,
-  dateStrings: true,
-});
 
 // 세션 미들웨어 설정
 app.use(
@@ -62,13 +49,12 @@ app.use(
 );
 
 // 라우트 설정
-app.use("/process", adminRoutes(pool));
+app.use("/process", adminRoutes(pool)); // 관리자 관련 라우트
 app.use("/process", authRoutes(pool)); // 인증 관련 라우트
 app.use("/process", userRoutes(pool)); // 사용자 관련 라우트
 app.post("/add-post", bordinsert.inspost); // 게시글을 올리는 페이지
 app.get("/blogbord", bordselect.selpost); // 게시글을 보여주는 페이지
 app.get("/post/:postId", bordnumselect.selpost2); // 개별 게시글을 보여주는 페이지
-// app.get("/edit-post/:postId", bordedit.uppost); // 게시글 수정 화면
 app.post("/update-post/:postId", bordupdate.uppost2); // 게시글 업데이트
 app.delete("/delete-post/:postId", borddelete.delpost); // 게시글 삭제
 
