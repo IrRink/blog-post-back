@@ -9,13 +9,9 @@ const dbconfig = require('./dbconfig/dbconfig.json');
 require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
+const adminRoutes = require('./routes/adminRoutes')
 const userRoutes = require('./routes/userRoutes');
-<<<<<<< HEAD
 const { bordinsert, bordselect, bordnumselect, bordedit, bordupdate, borddelete } = require("./controllers/bordController");
-=======
-const adminRoutes = require('./routes/adminRoutes');
->>>>>>> 5958198b9fc25f91ba4d3fd31149a26aea2465c4
-
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
