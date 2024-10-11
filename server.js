@@ -67,7 +67,7 @@ app.use("/process", userRoutes(pool)); // 사용자 관련 라우트
 app.post("/add-post", bordinsert.inspost); // 게시글을 올리는 페이지
 app.get("/blogbord", bordselect.selpost); // 게시글을 보여주는 페이지
 app.get("/post/:postId", bordnumselect.selpost2); // 개별 게시글을 보여주는 페이지
-app.get("/edit-post/:postId", bordedit.uppost); // 게시글 수정 화면
+// app.get("/edit-post/:postId", bordedit.uppost); // 게시글 수정 화면
 app.post("/update-post/:postId", bordupdate.uppost2); // 게시글 업데이트
 app.post("/delete-post/:postId", borddelete.delpost); // 게시글 삭제
 

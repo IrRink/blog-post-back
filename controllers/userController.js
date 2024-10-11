@@ -8,11 +8,6 @@ const addUser = (pool) => {
     const { adminId, adminName, adminAge, password } = req.body;
     const isAdmin = req.body.isAdmin || false;
 
-    // 데이터 유효성 검사
-    if (!adminId || !adminName || !adminAge || !password) {
-      return res.status(400).json({ message: "모든 필드를 채워주세요." });
-    }
-
     try {
       // 사용자 ID 중복 체크
       const idCheckSql =
@@ -119,4 +114,4 @@ const insertAdmin = (pool, adminId, adminName, adminAge, hashedPassword) => {
   });
 };
 
-module.exports = { addUser, insertAdmin };
+module.exports = { addUser};
