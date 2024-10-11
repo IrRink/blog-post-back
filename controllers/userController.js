@@ -5,8 +5,7 @@ const addUser = (pool) => {
   return async (req, res) => {
     console.log("회원가입 요청 본문:", req.body);
 
-    const { adminId, adminName, adminAge, password } = req.body;
-    const isAdmin = req.body.isAdmin || false;
+    const { adminId, adminName, adminAge, password, isAdmin } = req.body; // isAdmin을 추가
 
     try {
       // 사용자 ID 중복 체크
@@ -24,9 +23,7 @@ const addUser = (pool) => {
       });
 
       if (idCheckRows.length > 0) {
-        return res
-          .status(409)
-          .json({ message: "이미 사용 중인 아이디입니다." });
+        return res.status(409).json({ message: "이미 사용 중인 아이디입니다." });
       }
 
       // 비밀번호 해싱
@@ -36,59 +33,34 @@ const addUser = (pool) => {
         // 관리자 중복 체크
         const hasExistingAdmin = await checkExistingAdmin(pool);
         if (hasExistingAdmin) {
-          return res
-            .status(409)
-            .json({ message: "이미 관리자 계정이 존재합니다." });
+          return res.status(409).json({ message: "이미 관리자 계정이 존재합니다." });
         }
 
         // 관리자 등록 SQL 실행
         await insertAdmin(pool, adminId, adminName, adminAge, hashedPassword);
-        return res.status(201).json({ message: "관리자 등록 성공", adminId });
+        return res.status(200).json({ message: "관리자 계정이 성공적으로 등록되었습니다." });
       } else {
         // 사용자 등록 SQL 실행
-        const sqlInsertUser =
-          "INSERT INTO users (id, name, age, password) VALUES (?, ?, ?, ?)";
-        await new Promise((resolve, reject) => {
-          pool.getConnection((err, conn) => {
-            if (err) {
-              console.error("MySQL 연결 오류:", err);
-              return reject(err);
-            }
-            conn.query(
-              sqlInsertUser,
-              [adminId, adminName, adminAge, hashedPassword],
-              (err, result) => {
-                conn.release();
-                if (err) {
-                  console.error("SQL 쿼리 실행 오류:", err);
-                  return reject(err);
-                }
-                resolve(result);
-              }
-            );
-          });
-        });
-        return res.status(201).json({ message: "사용자 등록 성공", adminId });
+        await insertUser(pool, adminId, adminName, adminAge, hashedPassword);
+        return res.status(200).json({ message: "사용자 계정이 성공적으로 등록되었습니다." });
       }
     } catch (error) {
       console.error("사용자 등록 중 오류 발생:", error);
-      res
-        .status(500)
-        .json({ message: "사용자 등록 실패", error: error.message });
+      return res.status(500).json({ message: "서버 오류가 발생했습니다." });
     }
   };
 };
 
-// 기존 관리자 체크 함수
+// 관리자 존재 여부 확인
 const checkExistingAdmin = (pool) => {
   return new Promise((resolve, reject) => {
-    const adminCheckSql = "SELECT id FROM admin LIMIT 1";
     pool.getConnection((err, conn) => {
       if (err) return reject(err);
-      conn.query(adminCheckSql, (err, rows) => {
+      const sql = "SELECT COUNT(*) AS count FROM admin";
+      conn.query(sql, (err, result) => {
         conn.release();
         if (err) return reject(err);
-        resolve(rows.length >= 1);
+        resolve(result[0].count > 0);
       });
     });
   });
@@ -97,21 +69,36 @@ const checkExistingAdmin = (pool) => {
 // 관리자 등록 함수
 const insertAdmin = (pool, adminId, adminName, adminAge, hashedPassword) => {
   return new Promise((resolve, reject) => {
-    const sql =
-      "INSERT INTO admin (id, name, age, password) VALUES (?, ?, ?, ?)";
     pool.getConnection((err, conn) => {
       if (err) return reject(err);
-      conn.query(
-        sql,
-        [adminId, adminName, adminAge, hashedPassword],
-        (err, result) => {
-          conn.release();
-          if (err) return reject(err);
-          resolve(result);
-        }
-      );
+      const sql =
+        "INSERT INTO admin (id, name, age, password) VALUES (?, ?, ?, ?)";
+      conn.query(sql, [adminId, adminName, adminAge, hashedPassword], (err) => {
+        conn.release();
+        if (err) return reject(err);
+        resolve();
+      });
     });
   });
 };
 
-module.exports = { addUser};
+// 사용자 등록 함수
+const insertUser = (pool, userId, userName, userAge, hashedPassword) => {
+  return new Promise((resolve, reject) => {
+    pool.getConnection((err, conn) => {
+      if (err) return reject(err);
+      const sql =
+        "INSERT INTO users (id, name, age, password) VALUES (?, ?, ?, ?)";
+      conn.query(sql, [userId, userName, userAge, hashedPassword], (err) => {
+        conn.release();
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+  });
+};
+
+module.exports = {
+  addUser,
+  // ...다른 내보내기 내용
+};

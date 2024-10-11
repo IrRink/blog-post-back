@@ -46,7 +46,7 @@ exports.login = (pool) => (req, res) => {
 
       res
         .status(200)
-        .json({ message: "로그인 성공", userId: user.id, userName: user.name });
+        .json(user.name);
     });
   });
 };
