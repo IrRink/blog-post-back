@@ -1,117 +1,90 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>회원가입</title>
-  </head>
-  <body>
+</head>
+<body>
     <h1>회원가입</h1>
     <form id="signupForm" method="post">
-      <label for="adminId">사용자 ID</label>
-      <input
-        type="text"
-        name="adminId"
-        id="adminId"
-        placeholder="사용자 ID"
-        required
-      />
+        <label for="adminId">사용자 ID</label>
+        <input type="text" name="adminId" id="adminId" placeholder="사용자 ID" required>
 
-      <button type="button" id="checkIdButton">아이디 중복 체크</button>
-      <div id="idCheckResult"></div>
+        <button type="button" id="checkIdButton">아이디 중복 체크</button>
+        <div id="idCheckResult"></div>
 
-      <label for="adminName">이름</label>
-      <input
-        type="text"
-        name="adminName"
-        id="adminName"
-        placeholder="이름"
-        required
-        autocomplete="name"
-      />
+        <label for="adminName">이름</label>
+        <input type="text" name="adminName" id="adminName" placeholder="이름" required autocomplete="name">
+        
+        <label for="adminAge">나이</label>
+        <input type="number" name="adminAge" id="adminAge" placeholder="나이" required>
 
-      <label for="adminAge">나이</label>
-      <input
-        type="number"
-        name="adminAge"
-        id="adminAge"
-        placeholder="나이"
-        required
-      />
-
-      <label for="password">비밀번호</label>
-      <input
-        type="password"
-        name="password"
-        id="password"
-        placeholder="비밀번호"
-        required
-        autocomplete="current-password"
-      />
-
-      <label> <input type="checkbox" id="adminCheckbox" /> 관리자 추가 </label>
-
-      <button type="submit">회원가입</button>
+        <label for="password">비밀번호</label>
+        <input type="password" name="password" id="password" placeholder="비밀번호" required autocomplete="current-password">        
+        
+        <label>
+            <input type="checkbox" id="adminCheckbox"> 관리자 추가
+        </label>
+        
+        <button type="submit">회원가입</button>
     </form>
 
     <script>
-      document
-        .getElementById("checkIdButton")
-        .addEventListener("click", async () => {
-          const adminId = document.getElementById("adminId").value;
-          if (!adminId) {
-            alert("사용자 ID를 입력해주세요.");
-            return;
-          }
-
-          try {
-            const response = await fetch(
-              `http://localhost:5500/process/checkid/${adminId}`
-            );
-            const data = await response.json();
-            document.getElementById("idCheckResult").innerText = data.message;
-          } catch (error) {
-            console.error("아이디 중복 체크 중 오류 발생:", error);
-          }
+        document.getElementById('checkIdButton').addEventListener('click', async () => {
+            const adminId = document.getElementById('adminId').value;
+            if (!adminId) {
+                alert('사용자 ID를 입력해주세요.');
+                return;
+            }
+    
+            try {
+                const response = await fetch(`http://localhost:5500/process/checkid/${adminId}`);
+                const data = await response.json();
+                document.getElementById('idCheckResult').innerText = data.message;
+            } catch (error) {
+                console.error('아이디 중복 체크 중 오류 발생:', error);
+            }
         });
-
-      document.getElementById("signupForm").onsubmit = async (event) => {
-        event.preventDefault(); // 기본 폼 제출 방지
-        const formData = new FormData(event.target);
-        const data = {
-          adminId: formData.get("adminId"),
-          adminName: formData.get("adminName"),
-          adminAge: formData.get("adminAge"),
-          password: formData.get("password"),
-          isAdmin: document.getElementById("adminCheckbox").checked, // 관리자 여부 추가
+    
+        document.getElementById('signupForm').onsubmit = async (event) => {
+            event.preventDefault(); // 기본 폼 제출 방지
+            const formData = new FormData(event.target);
+            const data = {
+                adminId: formData.get('adminId'),
+                adminName: formData.get('adminName'),
+                adminAge: formData.get('adminAge'),
+                password: formData.get('password'),
+                isAdmin: document.getElementById('adminCheckbox').checked // 관리자 여부 추가
+            };
+    
+            // 관리자 체크 여부에 따라 경로 설정
+            const signupUrl = data.isAdmin 
+                ? 'http://localhost:5500/process/adduseroradmin' 
+                : 'http://localhost:5500/process/adduseroruser';
+    
+            // 회원가입 요청
+            try {
+                const response = await fetch(signupUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data) // 데이터 JSON 형식으로 변환하여 전송
+                });
+    
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                } else {
+                    alert('회원가입 실패: ' + result.message);
+                }
+            } catch (error) {
+                console.error('회원가입 요청 중 오류 발생:', error);
+                alert('회원가입 요청 중 오류가 발생했습니다.');
+            }
         };
-
-        // 관리자 체크 여부에 따라 경로 설정
-        const signupUrl = data.isAdmin
-          ? "http://localhost:5500/process/adduseroradmin"
-          : "http://localhost:5500/process/adduseroruser";
-
-        // 회원가입 요청
-        try {
-          const response = await fetch(signupUrl, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data), // 데이터 JSON 형식으로 변환하여 전송
-          });
-
-          const result = await response.json();
-          if (response.ok) {
-            alert(result.message);
-          } else {
-            alert("회원가입 실패: " + result.message);
-          }
-        } catch (error) {
-          console.error("회원가입 요청 중 오류 발생:", error);
-          alert("회원가입 요청 중 오류가 발생했습니다.");
-        }
-      };
     </script>
-  </body>
+    
+</body>
 </html>
