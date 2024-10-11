@@ -20,13 +20,14 @@ const {
   borddelete,
 } = require("./controllers/bordController");
 const app = express();
+app.use(express.static(path.join("views", "build")))
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use("/public", static(path.join(__dirname, "public")));
 
 const corsOptions = {
-  origin: ["http://localhost:3000", "http://127.0.0.1:5500"],
-  methods: ["GET", "POST", "OPTIONS"],
+  origin: ["http://localhost:3000", "htt"],
+  methods: ["GET", "POST","DELETE", "OPTIONS"],
   credentials: true,
 };
 app.use(cors(corsOptions));
@@ -69,7 +70,7 @@ app.get("/blogbord", bordselect.selpost); // 게시글을 보여주는 페이지
 app.get("/post/:postId", bordnumselect.selpost2); // 개별 게시글을 보여주는 페이지
 // app.get("/edit-post/:postId", bordedit.uppost); // 게시글 수정 화면
 app.post("/update-post/:postId", bordupdate.uppost2); // 게시글 업데이트
-app.post("/delete-post/:postId", borddelete.delpost); // 게시글 삭제
+app.delete("/delete-post/:postId", borddelete.delpost); // 게시글 삭제
 
 // 서버 실행
 const port = 5500;

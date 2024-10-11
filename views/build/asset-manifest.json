@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.9d276406.css",
+    "main.js": "/static/js/main.12e112f3.js",
+    "static/js/453.80efc53e.chunk.js": "/static/js/453.80efc53e.chunk.js",
+    "static/media/irlinklogo.png": "/static/media/irlinklogo.12da6fe9b2d88dc3488c.png",
+    "index.html": "/index.html",
+    "main.9d276406.css.map": "/static/css/main.9d276406.css.map",
+    "main.12e112f3.js.map": "/static/js/main.12e112f3.js.map",
+    "453.80efc53e.chunk.js.map": "/static/js/453.80efc53e.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.9d276406.css",
+    "static/js/main.12e112f3.js"
+  ]
+}
