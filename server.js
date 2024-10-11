@@ -10,11 +10,8 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
-<<<<<<< HEAD
-const { bordinsert, bordselect, bordnumselect, bordedit, bordupdate, borddelete } = require("./controllers/bordController");
-=======
 const adminRoutes = require('./routes/adminRoutes');
->>>>>>> 5958198b9fc25f91ba4d3fd31149a26aea2465c4
+const { bordinsert, bordselect, bordnumselect, bordupdate, borddelete } = require("./controllers/bordController");
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -23,7 +20,7 @@ app.use('/public', static(path.join(__dirname, 'public')));
 
 const corsOptions = {
     origin: ['http://localhost:3000', 'http://127.0.0.1:5500'],
-    methods: ['GET', 'POST', 'OPTIONS'],
+    methods: ['GET', 'POST', 'DELETE' ,'OPTIONS'],
     credentials: true,
 };
 app.use(cors(corsOptions));
@@ -61,9 +58,8 @@ app.use('/process', userRoutes(pool)); // 사용자 관련 라우트
 app.post('/add-post', bordinsert.inspost); // 게시글을 올리는 페이지
 app.get('/blogbord', bordselect.selpost); // 게시글을 보여주는 페이지
 app.get('/post/:postId', bordnumselect.selpost2); // 개별 게시글을 보여주는 페이지
-app.get('/edit-post/:postId', bordedit.uppost); // 게시글 수정 화면
 app.post('/update-post/:postId', bordupdate.uppost2); // 게시글 업데이트
-app.post('/delete-post/:postId', borddelete.delpost); // 게시글 삭제 
+app.delete('/delete-post/:postId', borddelete.delpost); // 게시글 삭제 
 
 // 서버 실행
 const port = 5500;

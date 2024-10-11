@@ -157,37 +157,6 @@ class Bordnumselect {
 }
 const bordnumselect = new Bordnumselect();
 
-// 게시물 수정 폼
-class Bordedit {
-    uppost(req, res) {
-        const postId = req.params.postId;
-
-        pool.getConnection((err, connection) => {
-            if (err) {
-                console.error("Error connecting to the database: " + err);
-                return res.status(500).json({ message: "Database connection error" });
-            }
-
-            const selectQuery = 'SELECT * FROM bordtable WHERE num = ?';
-            connection.execute(selectQuery, [postId], (err, results) => {
-                connection.release();
-                if (err) {
-                    console.error("Error fetching post: " + err);
-                    return res.status(500).json({ message: "Error fetching post" });
-                }
-
-                if (results.length === 0) {
-                    return res.status(404).json({ message: "Post not found" });
-                }
-
-                const post = results[0];
-                res.json(post);
-            });
-        });
-    }
-}
-const bordedit = new Bordedit();
-
 // 게시물 업데이트
 class Bordupdate {
     uppost2(req, res) {
@@ -226,33 +195,20 @@ class Borddelete {
                 return res.status(500).json({ message: "Database connection error" });
             }
 
-            const selectQuery = 'SELECT * FROM bordtable WHERE num = ?';
-            connection.execute(selectQuery, [postId], (err, results) => {
+            const deleteQuery = 'DELETE FROM bordtable WHERE num = ?';
+            connection.execute(deleteQuery, [postId], (err) => {
+                connection.release();
                 if (err) {
-                    connection.release();
-                    console.error("Error fetching post: " + err);
-                    return res.status(500).json({ message: "Error fetching post" });
+                    console.error("Error deleting post: " + err);
+                    return res.status(500).json({ message: "Error deleting post" });
                 }
-
-                if (results.length === 0) {
-                    connection.release();
-                    return res.status(404).json({ message: "Post not found" });
-                }
-
-                const deleteQuery = 'DELETE FROM bordtable WHERE num = ?';
-                connection.execute(deleteQuery, [postId], (err) => {
-                    connection.release();
-                    if (err) {
-                        console.error("Error deleting post: " + err);
-                        return res.status(500).json({ message: "Error deleting post" });
-                    }
-
-                    res.json({ message: "Post deleted successfully!" });
-                });
+                res.json({ message: "Post deleted successfully!" });
             });
         });
     }
 }
+
+
 const borddelete = new Borddelete();
 
-module.exports = { bordinsert, bordselect, bordnumselect, bordedit, bordupdate, borddelete };
+module.exports = { bordinsert, bordselect, bordnumselect, bordupdate, borddelete };
