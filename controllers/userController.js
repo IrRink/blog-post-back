@@ -15,7 +15,8 @@ const addUser = (pool) => {
 
     try {
       // 사용자 ID 중복 체크
-      const idCheckSql = "SELECT id FROM users WHERE id = ? UNION SELECT id FROM admin WHERE id = ?";
+      const idCheckSql =
+        "SELECT id FROM users WHERE id = ? UNION SELECT id FROM admin WHERE id = ?";
       const idCheckRows = await new Promise((resolve, reject) => {
         pool.getConnection((err, conn) => {
           if (err) return reject(err);
@@ -28,7 +29,9 @@ const addUser = (pool) => {
       });
 
       if (idCheckRows.length > 0) {
-        return res.status(409).json({ message: "이미 사용 중인 아이디입니다." });
+        return res
+          .status(409)
+          .json({ message: "이미 사용 중인 아이디입니다." });
       }
 
       // 비밀번호 해싱
@@ -38,7 +41,9 @@ const addUser = (pool) => {
         // 관리자 중복 체크
         const hasExistingAdmin = await checkExistingAdmin(pool);
         if (hasExistingAdmin) {
-          return res.status(409).json({ message: "이미 관리자 계정이 존재합니다." });
+          return res
+            .status(409)
+            .json({ message: "이미 관리자 계정이 존재합니다." });
         }
 
         // 관리자 등록 SQL 실행
@@ -46,28 +51,35 @@ const addUser = (pool) => {
         return res.status(201).json({ message: "관리자 등록 성공", adminId });
       } else {
         // 사용자 등록 SQL 실행
-        const sqlInsertUser = "INSERT INTO users (id, name, age, password) VALUES (?, ?, ?, ?)";
+        const sqlInsertUser =
+          "INSERT INTO users (id, name, age, password) VALUES (?, ?, ?, ?)";
         await new Promise((resolve, reject) => {
           pool.getConnection((err, conn) => {
             if (err) {
               console.error("MySQL 연결 오류:", err);
               return reject(err);
             }
-            conn.query(sqlInsertUser, [adminId, adminName, adminAge, hashedPassword], (err, result) => {
-              conn.release();
-              if (err) {
-                console.error("SQL 쿼리 실행 오류:", err);
-                return reject(err);
+            conn.query(
+              sqlInsertUser,
+              [adminId, adminName, adminAge, hashedPassword],
+              (err, result) => {
+                conn.release();
+                if (err) {
+                  console.error("SQL 쿼리 실행 오류:", err);
+                  return reject(err);
+                }
+                resolve(result);
               }
-              resolve(result);
-            });
+            );
           });
         });
         return res.status(201).json({ message: "사용자 등록 성공", adminId });
       }
     } catch (error) {
       console.error("사용자 등록 중 오류 발생:", error);
-      res.status(500).json({ message: "사용자 등록 실패", error: error.message });
+      res
+        .status(500)
+        .json({ message: "사용자 등록 실패", error: error.message });
     }
   };
 };
@@ -90,18 +102,21 @@ const checkExistingAdmin = (pool) => {
 // 관리자 등록 함수
 const insertAdmin = (pool, adminId, adminName, adminAge, hashedPassword) => {
   return new Promise((resolve, reject) => {
-    const sql = "INSERT INTO admin (id, name, age, password) VALUES (?, ?, ?, ?)";
+    const sql =
+      "INSERT INTO admin (id, name, age, password) VALUES (?, ?, ?, ?)";
     pool.getConnection((err, conn) => {
       if (err) return reject(err);
-      conn.query(sql, [adminId, adminName, adminAge, hashedPassword], (err, result) => {
-        conn.release();
-        if (err) return reject(err);
-        resolve(result);
-      });
+      conn.query(
+        sql,
+        [adminId, adminName, adminAge, hashedPassword],
+        (err, result) => {
+          conn.release();
+          if (err) return reject(err);
+          resolve(result);
+        }
+      );
     });
   });
 };
 
-
-
-module.exports = { addUser };
+module.exports = { addUser, insertAdmin };
