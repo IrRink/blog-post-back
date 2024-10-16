@@ -9,14 +9,7 @@ const pool = require("./models/pool"); // pool.js에서 pool을 불러옴
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/userRoutes");
-const {
-  bordinsert,
-  bordselect,
-  bordnumselect,
-  bordedit,
-  bordupdate,
-  borddelete,
-} = require("./controllers/bordController");
+const boardRoutes = require("./routes/boardRoutes");
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -52,11 +45,7 @@ app.use(
 app.use("/process", adminRoutes(pool)); // 관리자 관련 라우트
 app.use("/process", authRoutes(pool)); // 인증 관련 라우트
 app.use("/process", userRoutes(pool)); // 사용자 관련 라우트
-app.post("/add-post", bordinsert.inspost); // 게시글을 올리는 페이지
-app.get("/blogbord", bordselect.selpost); // 게시글을 보여주는 페이지
-app.get("/post/:postId", bordnumselect.selpost2); // 개별 게시글을 보여주는 페이지
-app.post("/update-post/:postId", bordupdate.uppost2); // 게시글 업데이트
-app.delete("/delete-post/:postId", borddelete.delpost); // 게시글 삭제
+app.use("/board", boardRoutes)
 
 // 서버 실행
 const port = 5500;
