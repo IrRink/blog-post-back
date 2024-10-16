@@ -1,26 +1,16 @@
-const userService = require("../services/userServices");
+const { addUserService } = require('../services/userServices');
 
-const registerUserController = async (req, res) => {
-  const { email, userName, userAge, password } = req.body;
-  try {
-    const token = await userService.registerUser(req.pool, email, userName, userAge, password);
-    res.status(201).json({ token });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
+const addUserController = async (req, res) => {
+    const { email, adminName, adminAge, password, isAdmin } = req.body;
 
-const loginUserController = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    const token = await userService.loginUser(req.pool, email, password);
-    res.status(200).json({ token });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
+    try {
+        const message = await addUserService(email, adminName, adminAge, password, isAdmin);
+        return res.status(201).json({ message });
+    } catch (error) {
+        return res.status(405).json({ error: error.message });
+    }
 };
 
 module.exports = {
-  registerUserController,
-  loginUserController,
+    addUserController,
 };

@@ -1,40 +1,34 @@
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const userModel = require("../models/userModal");
+// services/userService.js
+const bcrypt = require('bcrypt');
 
-// 사용자 등록 함수
-const registerUser = async (pool, email, userName, userAge, password) => {
-  const emailCheckRows = await userModel.checkUserEmailExists(pool, email);
-  if (emailCheckRows.length > 0) {
-    throw new Error("이미 사용 중인 이메일입니다.");
-  }
+const { checkEmailExists, insertUser, insertAdmin } = require('../models/userModal');
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-  await userModel.insertUser(pool, email, userName, userAge, hashedPassword);
+const addUserService = async (email, name, age, password, isAdmin) => {
+    // 이메일 중복 체크
+    const existingUser = await checkEmailExists(email);
+    if (existingUser) {
+        throw new Error("이미 사용 중인 이메일입니다.");
+    }
 
-  // JWT 토큰 생성
-  const token = jwt.sign({ email, role: "user" }, process.env.JWT_SECRET, { expiresIn: "1h" });
-  return token; // 생성된 토큰 반환
-};
+    // 비밀번호 해싱
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-// 사용자 로그인 함수
-const loginUser = async (pool, email, password) => {
-  const user = await userModel.findUserByEmail(pool, email);
-  if (!user) {
-    throw new Error("사용자를 찾을 수 없습니다.");
-  }
+    if (isAdmin) {
+        // 관리자 등록 로직
+        const hasExistingAdmin = await checkEmailExists(email); // 관리자 존재 여부 확인
+        if (hasExistingAdmin) {
+            throw new Error("이미 관리자 계정이 존재합니다.");
+        }
+        await insertAdmin(email, name, age, hashedPassword);
+    } else {
+        // 사용자 등록 로직
+        await insertUser(email, name, age, hashedPassword);
+    }
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) {
-    throw new Error("비밀번호가 일치하지 않습니다.");
-  }
-
-  // JWT 토큰 생성
-  const token = jwt.sign({ email, role: "user" }, process.env.JWT_SECRET, { expiresIn: "1h" });
-  return token; // 생성된 토큰 반환
+    return "계정이 성공적으로 등록되었습니다.";
 };
 
 module.exports = {
-  registerUser,
-  loginUser,
+    addUserService,
 };
+
