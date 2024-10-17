@@ -1,26 +1,13 @@
-const adminService = require("../services/adminServices");
+const AdminService = require('../services/adminServices');
 
-const registerAdminController = async (req, res) => {
-  const { email, adminName, adminAge, password } = req.body;
-  try {
-    const token = await adminService.registerAdmin(req.pool, email, adminName, adminAge, password);
-    res.status(201).json({ token });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
+exports.registerAdmin = async (req, res) => {
+    const { email, name, age, password } = req.body;
 
-const loginAdminController = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    const token = await adminService.loginAdmin(req.pool, email, password);
-    res.status(200).json({ token });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-module.exports = {
-  registerAdminController,
-  loginAdminController,
+    try {
+        await AdminService.registerAdmin(email, name, age, password);
+        res.status(201).json({ message: '어드민 등록 성공' });
+    } catch (error) {
+        console.error('어드민 등록 오류:', error);
+        res.status(400).json({ message: error.message });
+    }
 };

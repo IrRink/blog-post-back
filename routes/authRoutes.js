@@ -1,16 +1,9 @@
+
 const express = require('express');
-const userService = require("../services/userServices");
-const adminService = require("../services/adminServices");
-const { login, logout, checkSession } = require('../services/authServices');
-const authController = require("../controllers/authController");
 const router = express.Router();
+const authController = require('../controllers/authController');
 
-// // 로그인 라우트
-// router.post('/login/:role?', login(pool)); // 로그인 처리
-// router.post('/logout', logout); // 로그아웃 처리
-// router.get('/session', checkSession); // 세션 체크
+// 관리자 가입 날짜와 사용자 수를 가져오는 GET 라우트
+router.get('/admin-info', authController.getAdminInfo);
 
-
-module.exports = (pool) => {
-    return router;
-};
+module.exports = router;

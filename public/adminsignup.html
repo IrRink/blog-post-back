@@ -1,69 +1,57 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
     <title>관리자 회원가입</title>
-    <link rel="stylesheet" href="style.css" />
-    <!-- 필요 시 CSS 파일 추가 -->
-  </head>
-  <body>
+</head>
+<body>
     <h1>관리자 회원가입</h1>
-    <form
-      id="signupForm"
-      method="POST"
-      action="http://localhost:5500/process/addadmin"
-    >
-      <div>
-        <label for="id">아이디:</label>
-        <input type="text" id="id" name="id" required />
-      </div>
-      <div>
-        <label for="name">이름:</label>
-        <input type="text" id="name" name="name" required />
-      </div>
-      <div>
-        <label for="age">나이:</label>
-        <input type="number" id="age" name="age" required />
-      </div>
-      <div>
-        <label for="password">비밀번호:</label>
-        <input type="password" id="password" name="password" required />
-      </div>
-      <button type="submit">가입하기</button>
-    </form>
-    <button onclick="window.location.href='index.html'">로그인</button>
+
+    <input type="email" id="email" placeholder="이메일" required />
+    <input type="text" id="name" placeholder="이름" required />
+    <input type="number" id="age" placeholder="나이" required />
+    <input type="password" id="password" placeholder="비밀번호" required />
+    <label>
+        <input type="checkbox" id="adminCheckbox" /> 관리자 등록
+    </label>
+    <button id="signupButton">회원가입</button>
+
     <script>
-      document
-        .getElementById("signupForm")
-        .addEventListener("submit", function (event) {
-          event.preventDefault(); // 기본 제출 동작 방지
+        document.getElementById("signupButton").addEventListener("click", async () => {
+            // 입력 값 가져오기
+            const email = document.getElementById('email').value;
+            const name = document.getElementById('name').value;
+            const age = document.getElementById('age').value;
+            const password = document.getElementById('password').value;
+            const isAdmin = document.getElementById('adminCheckbox').checked;
 
-          const formData = new FormData(this);
-          const data = Object.fromEntries(formData.entries());
+            // 데이터 객체 생성
+            const data = {
+                email,
+                name,
+                age,
+                password,
+                isAdmin,
+            };
 
-          // 서버에 데이터 전송
-          fetch(this.action, {
-            method: this.method,
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-          })
-            .then((response) => {
-              if (response.ok) {
-                return response.text();
-              }
-              throw new Error("회원가입 실패");
-            })
-            .then((data) => {
-              alert(data); // 서버로부터 받은 메시지 표시
-            })
-            .catch((error) => {
-              console.error("Error:", error);
-              alert("관리자가 존재합니다.");
-            });
+            try {
+                // POST 요청 보내기
+                const response = await fetch('http://127.0.0.1:5500/process/adduseroradmin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                // 응답 처리
+                const result = await response.json();
+                alert(result.message);
+            } catch (error) {
+                console.error("Error:", error);
+                alert("서버 응답 오류: " + error.message);
+            }
         });
     </script>
-  </body>
+</body>
 </html>
