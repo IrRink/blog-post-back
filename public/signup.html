@@ -24,17 +24,18 @@
     <p id="emailCheckResult"></p>
 
     <script>
-        document.getElementById('checkEmailButton').onclick = function() {
-            const email = document.getElementById('email').value;
-            axios.post('http://localhost:5500/process/checkemail', { email })
-                .then(response => {
-                    const message = response.data.exists ? '이미 사용 중인 이메일입니다.' : '사용 가능한 이메일입니다.';
-                    document.getElementById('emailCheckResult').innerText = message;
-                })
-                .catch(error => {
-                    console.error('이메일 확인 중 오류 발생:', error);
-                });
-        };
+       document.getElementById('checkEmailButton').onclick = function() {
+    const email = document.getElementById('email').value;
+    axios.post('http://localhost:5500/process/checkemail', { email })
+        .then(response => {
+            const message = response.data.exists ? '이미 사용 중인 이메일입니다.' : '사용 가능한 이메일입니다.';
+            document.getElementById('emailCheckResult').innerText = message;
+        })
+        .catch(error => {
+            console.error('이메일 확인 중 오류 발생:', error);
+            document.getElementById('emailCheckResult').innerText = '이메일 확인 중 오류가 발생했습니다.';
+        });
+};
 
         document.getElementById('signupForm').onsubmit = function(event) {
             event.preventDefault();
@@ -48,9 +49,12 @@
             axios.post(endpoint, { email, name, age, password })
                 .then(response => {
                     console.log('가입 성공:', response.data);
+                    alert('가입이 완료되었습니다. 로그인 해주세요.');
+                    window.location.href = '로그인 페이지 URL'; // 여기에 로그인 페이지 URL을 입력
                 })
                 .catch(error => {
                     console.error('가입 요청 중 오류 발생:', error);
+                    alert('가입 중 오류가 발생했습니다. 다시 시도해주세요.');
                 });
         };
     </script>
