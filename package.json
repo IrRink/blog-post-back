@@ -20,7 +20,8 @@
     "serve-static": "^1.16.2",
     "styled-components": "^6.1.13",
     "typescript": "^5.6.2",
-    "web-vitals": "^4.2.3"
+    "web-vitals": "^4.2.3",
+    "proxy": "http://127.0.0.1:5500"
   },
   "name": "login",
   "version": "1.0.0",
