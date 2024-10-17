@@ -7,6 +7,8 @@ router.post('/adduseroruser', userController.registerUser);
 
 router.post('/login', userController.loginUser);
 router.post('/logout', userController.logoutUser);
+router.post('/checkemail', userController.checkEmail);
+
 module.exports = router;
 
 

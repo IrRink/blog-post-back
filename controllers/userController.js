@@ -50,3 +50,15 @@ exports.logoutUser = async (req, res) => {
         res.status(500).json({ error: '서버 오류 발생' });
     }
 };
+
+exports.checkEmail = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const exists = await UserService.checkEmailExists(email);
+        res.status(200).json({ exists });
+    } catch (error) {
+        console.error('이메일 확인 오류:', error.message);
+        res.status(500).json({ error: '이메일 확인 중 오류 발생' });
+    }
+};

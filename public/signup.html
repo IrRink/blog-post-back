@@ -9,6 +9,8 @@
     <h1>회원가입</h1>
     <form id="signupForm">
         <input type="email" id="email" placeholder="이메일" required>
+        <button type="button" id="checkEmailButton">이메일 중복 확인</button>
+        <br>
         <input type="text" id="name" placeholder="이름" required>
         <input type="number" id="age" placeholder="나이" required>
         <input type="password" id="password" placeholder="비밀번호" required>
@@ -19,42 +21,37 @@
         
         <button type="submit">가입하기</button>
     </form>
-    
-    <div id="message"></div> <!-- 오류 메시지를 표시할 영역 -->
+    <p id="emailCheckResult"></p>
 
     <script>
+        document.getElementById('checkEmailButton').onclick = function() {
+            const email = document.getElementById('email').value;
+            axios.post('http://localhost:5500/process/checkemail', { email })
+                .then(response => {
+                    const message = response.data.exists ? '이미 사용 중인 이메일입니다.' : '사용 가능한 이메일입니다.';
+                    document.getElementById('emailCheckResult').innerText = message;
+                })
+                .catch(error => {
+                    console.error('이메일 확인 중 오류 발생:', error);
+                });
+        };
+
         document.getElementById('signupForm').onsubmit = function(event) {
             event.preventDefault();
-
             const email = document.getElementById('email').value;
             const name = document.getElementById('name').value;
             const age = document.getElementById('age').value;
             const password = document.getElementById('password').value;
             const isAdmin = document.getElementById('isAdmin').checked;
 
-            // 적절한 URL로 POST 요청을 보냅니다.
             const endpoint = isAdmin ? 'http://localhost:5500/process/adduseroradmin' : 'http://localhost:5500/process/adduseroruser';
-            console.log(endpoint);
-            axios.post(endpoint, {
-                email,
-                name,
-                age,
-                password
-            })
-            .then(response => {
-                console.log('가입 성공:', response.data);
-                document.getElementById('message').innerText = '가입이 성공적으로 완료되었습니다!'; // 성공 메시지 표시
-            })
-            .catch(error => {
-                console.error('가입 요청 중 오류 발생:', error);
-                if (error.response) {
-                    // 서버가 오류 응답을 보냈을 때
-                    document.getElementById('message').innerText = error.response.data.error; // 오류 메시지 표시
-                } else {
-                    // 네트워크 오류 등
-                    document.getElementById('message').innerText = '가입 요청 중 오류가 발생했습니다.';
-                }
-            });
+            axios.post(endpoint, { email, name, age, password })
+                .then(response => {
+                    console.log('가입 성공:', response.data);
+                })
+                .catch(error => {
+                    console.error('가입 요청 중 오류 발생:', error);
+                });
         };
     </script>
 </body>
