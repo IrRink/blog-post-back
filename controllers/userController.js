@@ -19,6 +19,7 @@ exports.registerUser = async (req, res) => {
 
 exports.loginUser = async (req, res) => {
     const { email, password } = req.body;
+
     try {
         const { user, token } = await UserService.loginUser(email, password, false);
         res.status(200).json({ message: '유저 로그인 성공', token, user });

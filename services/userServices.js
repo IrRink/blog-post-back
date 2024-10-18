@@ -31,7 +31,6 @@ class UserService {
         }
     }
 
-    // 로그인 처리
     static async loginUser(email, password, isAdmin) {
         let user;
         if (isAdmin) {
@@ -56,10 +55,9 @@ class UserService {
         return { user, token }; // 사용자 및 토큰 반환
     }
 
-    // 로그아웃: Refresh Token 무효화 (저장 없이 처리)
+    // 로그아웃: Refresh Token 무효화
     static async invalidateRefreshToken(token) {
         try {
-            // 여기서 sessions 테이블을 가정하고 토큰을 삭제
             await pool.execute('DELETE FROM sessions WHERE token = ?', [token]);
         } catch (error) {
             console.error('리프레시 토큰 무효화 오류:', error.message);
