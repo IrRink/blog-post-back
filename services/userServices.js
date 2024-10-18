@@ -14,7 +14,7 @@ class UserService {
         const hashedPassword = await bcrypt.hash(password, 10);
         return await User.create(email, name, age, hashedPassword);
     }
-    
+
     // 이메일 존재 여부 확인
     static async checkEmailExists(email) {
         if (!email) {

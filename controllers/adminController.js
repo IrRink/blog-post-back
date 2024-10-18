@@ -1,5 +1,6 @@
 const AdminService = require('../services/adminServices');
-const UserService = require('../services/userServices')
+const UserService = require('../services/userServices');
+
 exports.registerAdmin = async (req, res) => {
     const { email, name, age, password } = req.body;
 
@@ -11,7 +12,7 @@ exports.registerAdmin = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
-// 로그인 핸들러 (관리자)
+
 exports.loginAdmin = async (req, res) => {
     const { email, password } = req.body;
 
