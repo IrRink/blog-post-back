@@ -3,7 +3,6 @@ const express = require("express");
 const path = require("path");
 const static = require("serve-static");
 const bcrypt = require("bcrypt");
-const session = require("express-session");
 const cors = require("cors");
 const pool = require("./models/pool"); // pool.js에서 pool을 불러옴
 const authRoutes = require("./routes/authRoutes");
@@ -11,16 +10,15 @@ const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/userRoutes");
 const boardRoutes = require("./routes/boardRoutes");
 const tokenRoutes = require("./routes/tokenRoutes")
-const bodyParser = require('body-parser');
 
-const app = express();
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(bodyParser.json());
+const app = express();  
+app.use(express.urlencoded({ extended: true }));
+  app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 const corsOptions = {
   origin: ["http://localhost:3000", "http://192.168.99.115:3000", "http://localhost:5500", "http://127.0.0.1:5500"],
+  optionsSuccessStatus: 200,
   methods: ["GET", "POST", "DELETE", "OPTIONS"],
   credentials: true,
 };

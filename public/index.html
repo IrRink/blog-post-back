@@ -24,24 +24,27 @@
             const password = document.getElementById('password').value;
             const isAdmin = document.getElementById('isAdmin').checked;
 
-            axios.post('http://localhost:5500/process/login', {
+            // 관리자인 경우 관리자 로그인 API를 사용하고, 아닐 경우 일반 사용자 로그인 API를 사용
+            const loginUrl = isAdmin ? 'http://localhost:5500/process/login/admin' : 'http://localhost:5500/process/login';
+
+            axios.post(loginUrl, {
                 email,
-                password,
-                isAdmin // 체크박스 상태 전달
+                password
             })
             .then(response => {
                 console.log('로그인 성공:', response.data);
-                // 토큰 저장 및 다음 동작 수행
                 localStorage.setItem('token', response.data.accessToken); // 로컬 스토리지에 accessToken 저장
                 document.getElementById('logoutButton').style.display = 'block'; // 로그아웃 버튼 표시
+                // 추가적인 로그인 성공 후 처리 (예: 페이지 리다이렉션)
             })
             .catch(error => {
                 console.error('로그인 요청 중 오류 발생:', error);
+                const errorMessage = error.response?.data?.error || '로그인 요청에 오류가 발생했습니다.';
+                alert(errorMessage); // 오류 메시지 표시
             });
         };
 
         document.getElementById('logoutButton').onclick = function() {
-            // 로컬 스토리지에서 토큰 삭제
             localStorage.removeItem('token');
             console.log('로그아웃 성공');
             document.getElementById('logoutButton').style.display = 'none'; // 로그아웃 버튼 숨기기
