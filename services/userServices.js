@@ -1,7 +1,6 @@
-// userService.js
 const User = require('../models/userModal');
-const bcrypt = require('bcrypt');
 const Admin = require('../models/adminModal');
+const bcrypt = require('bcrypt');
 const { generateToken } = require('./tokenService'); // 토큰 생성 로직을 포함한 파일
 
 class UserService {
@@ -18,10 +17,14 @@ class UserService {
     
     // 이메일 존재 여부 확인
     static async checkEmailExists(email) {
+        if (!email) {
+            throw new Error('이메일이 제공되지 않았습니다.');
+        }
+
         try {
-            const userRows = await User.findByEmail(email); // 이메일로 사용자 조회
-            const adminRows = await Admin.findByEmail(email); // 이메일로 관리자 조회
-            return userRows || adminRows ? true : false; // 사용자나 관리자가 존재하면 true 반환
+            const userExists = await User.checkEmailExists(email); // 사용자 테이블에서 이메일 확인
+            const adminExists = await Admin.checkEmailExists(email); // 관리자 테이블에서 이메일 확인
+            return userExists || adminExists; // 사용자 또는 관리자가 존재하면 true 반환
         } catch (error) {
             console.error('이메일 확인 오류:', error.message);
             throw new Error('이메일 확인 중 오류가 발생했습니다.');

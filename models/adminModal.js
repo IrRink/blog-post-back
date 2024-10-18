@@ -19,9 +19,14 @@ class Admin {
     }
 
     static async findByEmail(email) {
-      const [rows] = await pool.execute('SELECT * FROM admin WHERE email = ?', [email]);
-      return rows[0]; // 관리자 정보를 반환
-  }
+        const [rows] = await pool.execute('SELECT * FROM admin WHERE email = ?', [email]);
+        return rows[0]; // 첫 번째 관리자 반환
+    }
+
+    static async checkEmailExists(email) {
+        const [rows] = await pool.execute('SELECT COUNT(*) AS count FROM admin WHERE email = ?', [email]);
+        return rows[0].count > 0; // 존재하면 true 반환
+    }
 }
 
 module.exports = Admin;

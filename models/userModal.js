@@ -3,10 +3,9 @@ const bcrypt = require('bcrypt');
 
 class User {
     static async create(email, name, age, password) {
-        const hashedPassword = await bcrypt.hash(password, 10);
         const [result] = await pool.execute(
             'INSERT INTO users (email, name, age, password) VALUES (?, ?, ?, ?)', 
-            [email, name, age, hashedPassword]
+            [email, name, age, password]
         );
         return result;
     }
@@ -20,7 +19,6 @@ class User {
         const [rows] = await pool.execute('SELECT COUNT(*) AS count FROM users WHERE email = ?', [email]);
         return rows[0].count > 0; // 존재하면 true 반환
     }
-
 }
 
 module.exports = User;
