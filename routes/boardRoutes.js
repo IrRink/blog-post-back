@@ -6,9 +6,9 @@ const { boardInsert, boardSelect, numBoardSelect, boardUpdate, boardDelete } = r
 
 // 게시물 저장
 router.post('/add-post', async (req, res) => {
-    const { title, subtitle, board_text} = req.body;
+    const { title, subtitle, board_text, namee} = req.body;
     
-    const userId = 'a';
+    const userId = namee;
 
     if (!title || !subtitle || !board_text) {
         return res.status(400).json({ message: '모든 필드를 입력해야 합니다.' });
