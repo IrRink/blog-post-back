@@ -1,5 +1,4 @@
 const UserService = require('../services/userServices');
-
 exports.registerUser = async (req, res) => {
     const { email, name, age, password } = req.body;
 
@@ -29,6 +28,7 @@ exports.loginUser = async (req, res) => {
     }
 };
 
+// 로그아웃: Refresh Token 무효화 (세션 미사용)
 exports.logoutUser = async (req, res) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // 'Bearer token'에서 토큰만 추출
@@ -38,13 +38,14 @@ exports.logoutUser = async (req, res) => {
     }
 
     try {
-        await UserService.invalidateRefreshToken(token); // 리프레시 토큰 무효화
+        console.log('로그아웃 시도 중, 토큰:', token); // 토큰 로깅
         res.status(200).json({ message: '로그아웃 성공' });
     } catch (error) {
-        console.error('로그아웃 오류:', error.message);
-        res.status(500).json({ error: error.message });
+        console.error('로그아웃 오류:', error); // 전체 오류 로깅
+        res.status(500).json({ error: '로그아웃 중 오류가 발생했습니다.' });
     }
 };
+
 
 exports.checkEmail = async (req, res) => {
     const { email } = req.query;

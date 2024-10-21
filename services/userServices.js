@@ -2,7 +2,7 @@ const User = require('../models/userModal');
 const Admin = require('../models/adminModal');
 const bcrypt = require('bcrypt');
 const { generateToken } = require('./tokenService'); // 토큰 생성 로직을 포함한 파일
-
+const pool = require('../models/pool');
 class UserService {
     // 사용자 등록
     static async registerUser(email, name, age, password) {

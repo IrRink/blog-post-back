@@ -20,7 +20,15 @@ const authService = {
     } catch (error) {
       throw error;
     }
-  }
+  },
+  getAdminEmail: async () => {
+    try {
+      const adminEamil = await authModel.getAdminEamil(); // 모델에서 이름 가져오기
+      return adminEamil;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 module.exports = authService;

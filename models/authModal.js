@@ -34,6 +34,15 @@ const authModel = {
       throw error;
     }
   },
+  getAdminEamil: async () => {
+    const query = 'SELECT email FROM admin LIMIT 1'; // 올바른 열 이름으로 수정
+    try {
+      const [results] = await pool.query(query);
+      return results[0].email; // 결과의 첫 번째 레코드의 관리자 이름 반환
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 module.exports = authModel;
