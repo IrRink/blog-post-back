@@ -61,7 +61,7 @@ router.post('/update-post/:num', async (req, res) => {
 
     try {
         await boardUpdate(num, title, subtitle, board_text);
-        res.json({ message: '게시물이 성공적으로 업데이트되었습니다!' });
+        res.json('게시물이 성공적으로 업데이트되었습니다!');
     } catch (error) {
         console.error('게시물 업데이트 중 오류 발생:', error);
         res.status(500).json({ message: '게시물 업데이트 중 오류가 발생했습니다.' });
