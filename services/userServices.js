@@ -33,28 +33,36 @@ class UserService {
 
     static async loginUser(email, password, isAdmin) {
         let user;
-        if (isAdmin) {
-            user = await Admin.findByEmail(email);
-            if (!user) {
-                throw new Error('관리자가 존재하지 않습니다.');
+    
+        try {
+            if (isAdmin) {
+                user = await Admin.findByEmail(email);
+                if (!user) {
+                    throw new Error('관리자가 존재하지 않습니다.');
+                }
+            } else {
+                user = await User.findByEmail(email);
+                if (!user) {
+                    throw new Error('유저가 존재하지 않습니다.');
+                }
             }
-        } else {
-            user = await User.findByEmail(email);
-            if (!user) {
-                throw new Error('유저가 존재하지 않습니다.');
+    
+            // 비밀번호 비교
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (!isMatch) {
+                throw new Error('비밀번호가 틀립니다.');
             }
+    
+            // JWT 토큰 생성
+            const token = generateToken(user.email); 
+            return { user, token };
+    
+        } catch (error) {
+            console.error('로그인 처리 중 오류 발생:', error.message);
+            throw error; // 오류를 외부로 전달
         }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            throw new Error('비밀번호가 틀립니다.');
-        }
-
-        // JWT 토큰 생성
-        const token = generateToken(user.id, isAdmin); // 사용자 ID와 isAdmin 정보를 사용하여 토큰 생성
-        return { user, token }; // 사용자 및 토큰 반환
     }
-
+    
     // 로그아웃: Refresh Token 무효화
     static async invalidateRefreshToken(token) {
         try {

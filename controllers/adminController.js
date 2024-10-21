@@ -21,6 +21,6 @@ exports.loginAdmin = async (req, res) => {
         res.status(200).json({ message: '관리자 로그인 성공', token, admin: user });
     } catch (error) {
         console.error('로그인 오류:', error.message);
-        res.status(401).json({ error: error.message });
+        res.status(401).json({ error: error.message }); // 에러 메시지 반환
     }
 };

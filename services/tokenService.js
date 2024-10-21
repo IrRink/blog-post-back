@@ -1,10 +1,11 @@
 const jwt = require('jsonwebtoken');
 
-const generateToken = (id, isAdmin) => {
-    return jwt.sign({ id, isAdmin }, process.env.JWT_SECRET, { expiresIn: '1h' });
+// JWT 토큰 생성 (이메일만 포함)
+const generateToken = (email) => {
+    return jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 };
 
-// 필요에 따라 토큰 검증 기능 추가
+// 토큰 검증 기능
 const verifyToken = (token) => {
     return jwt.verify(token, process.env.JWT_SECRET);
 };
