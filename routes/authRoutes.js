@@ -7,4 +7,5 @@ const authController = require('../controllers/authController');
 router.get('/adminAndUserCount', authController.getAdminInfo);
 router.get('/adminname/', authController.getAdminName);
 router.get('/aminEmail',authController.getAdminEmail);
+
 module.exports = router;
