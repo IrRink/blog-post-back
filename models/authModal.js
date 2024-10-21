@@ -26,19 +26,27 @@ const authModel = {
 
   // 관리자 이름 가져오기
   getAdminName: async () => {
-    const query = 'SELECT name FROM admin LIMIT 1'; // 올바른 열 이름으로 수정
+    const query = 'SELECT name FROM admin LIMIT 1';
     try {
       const [results] = await pool.query(query);
+      if (results.length === 0) {
+        throw new Error('관리자가 없습니다.'); // 결과가 없을 경우 처리
+      }
       return results[0].name; // 결과의 첫 번째 레코드의 관리자 이름 반환
     } catch (error) {
       throw error;
     }
   },
+
+  // 관리자 이메일 가져오기
   getAdminEamil: async () => {
-    const query = 'SELECT email FROM admin LIMIT 1'; // 올바른 열 이름으로 수정
+    const query = 'SELECT email FROM admin LIMIT 1';
     try {
       const [results] = await pool.query(query);
-      return results[0].email; // 결과의 첫 번째 레코드의 관리자 이름 반환
+      if (results.length === 0) {
+        throw new Error('관리자가 없습니다.'); // 결과가 없을 경우 처리
+      }
+      return results[0].email; // 결과의 첫 번째 레코드의 관리자 이메일 반환
     } catch (error) {
       throw error;
     }
