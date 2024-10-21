@@ -38,12 +38,12 @@ class UserService {
             if (isAdmin) {
                 user = await Admin.findByEmail(email);
                 if (!user) {
-                    throw new Error('관리자가 없거나, 이메일이 잘못되었습니다.');
+                    throw new Error('관리자가 존재하지 않습니다.');
                 }
             } else {
                 user = await User.findByEmail(email);
                 if (!user) {
-                    throw new Error('사용자가 없거나, 이메일이 잘못되었습니다.');
+                    throw new Error('유저가 존재하지 않습니다.');
                 }
             }
     
