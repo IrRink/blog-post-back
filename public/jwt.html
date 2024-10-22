@@ -45,6 +45,7 @@
                     email: user.email,
                     issuedAt,
                     expiresAt,
+                    naem:user.name,
                     isExpired: isExpired ? '만료됨' : '유효함' // 만료 여부 표시
                 };
                 document.getElementById('result').textContent = JSON.stringify(result, null, 2);

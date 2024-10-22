@@ -76,6 +76,31 @@ exports.checkEmail = async (req, res) => {
     } catch (error) {
         // 에러 발생 시 오류 메시지를 콘솔에 출력하고 500 상태 코드와 에러 메시지 응답
         console.error('이메일 확인 오류:', error.message);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: error.message }); 
+    }
+};
+
+exports.updateProfile = async (req, res) => {
+    const userEmail = req.user.email; // 요청 객체에서 이메일 가져오기
+    const userData = req.body; // 요청 본문에서 사용자 데이터 가져오기
+
+    try {
+        await UserService.updateUser(userEmail, userData); // 사용자 정보 업데이트
+        res.status(200).send('사용자 정보가 성공적으로 업데이트되었습니다.');
+    } catch (error) {
+        console.error('사용자 정보 업데이트 오류:', error.message);
+        res.status(500).send('사용자 정보 업데이트 중 오류가 발생했습니다.');
+    }
+};
+
+exports.deleteAccount = async (req, res) => {
+    const userEmail = req.user.email; // 사용자의 이메일을 가져옴 (JWT에서 가져오거나 세션에서 가져올 수 있음)
+
+    try {
+        await UserService.deleteUser(userEmail); // UserService를 통해 사용자 삭제 처리
+        res.status(200).json({ message: '회원 탈퇴가 완료되었습니다.' });
+    } catch (error) {
+        console.error('회원 탈퇴 오류:', error.message);
+        res.status(400).json({ error: error.message });
     }
 };

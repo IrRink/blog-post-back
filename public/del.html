@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원 탈퇴</title>
+</head>
+<body>
+    <h1>회원 탈퇴</h1>
+    <p>탈퇴하시려면 아래 버튼을 클릭하세요.</p>
+    <button id="deleteAccountBtn">회원 탈퇴</button>
+
+    <script>
+        // 로그인 상태 확인
+        const token = sessionStorage.getItem('token');
+        if (!token) {
+            alert('로그인이 필요합니다.');
+            window.location.href = '/blog-post-back/public/index.html'; // 로그인 페이지로 리디렉션
+        }
+
+        document.getElementById('deleteAccountBtn').addEventListener('click', async () => {
+            const confirmation = confirm("정말로 탈퇴하시겠습니까?");
+            if (confirmation) {
+                try {
+                    const response = await fetch('/process/deleteAccount', {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}` // JWT 토큰을 포함
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        alert('회원 탈퇴가 완료되었습니다.');
+                        sessionStorage.removeItem('token'); // 토큰 제거
+                        window.location.href = '/'; // 홈 페이지로 리디렉션
+                    } else {
+                        const errorData = await response.json();
+                        alert(`탈퇴 실패: ${errorData.error}`);
+                    }
+                } catch (error) {
+                    console.error('탈퇴 중 오류 발생:', error);
+                    alert('탈퇴 중 오류가 발생했습니다. 나중에 다시 시도해 주세요.');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

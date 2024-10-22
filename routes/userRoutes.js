@@ -12,4 +12,6 @@ router.get('/checkEmail', userController.checkEmail); // 수정된 부분
 router.get('/profile', authenticateJWT, (req, res) => {
   res.send({ user: req.user }); // 인증된 사용자 정보 반환
 });
+router.delete('/deleteAccount', userController.deleteAccount);
+router.put('/updateProfile', authenticateJWT, userController.updateProfile);
 module.exports = router;

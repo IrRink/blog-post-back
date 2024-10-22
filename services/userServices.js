@@ -15,6 +15,7 @@ class UserService {
         return await User.create(email, name, age, hashedPassword);
     }
 
+    
     // 이메일 존재 여부 확인
     static async checkEmailExists(email) {
         if (!email) {
@@ -29,6 +30,10 @@ class UserService {
             console.error('이메일 확인 오류:', error.message);
             throw new Error('이메일 확인 중 오류가 발생했습니다.');
         }
+    }
+    
+    static async updateUser(email, data) {
+        await User.updateUser(email, data); // 사용자 정보 업데이트
     }
 
     static async loginUser(email, password, isAdmin) {
@@ -72,6 +77,7 @@ class UserService {
             throw new Error('리프레시 토큰 무효화 중 오류가 발생했습니다.');
         }
     }
+    
 }
 
 module.exports = UserService;
