@@ -1,6 +1,6 @@
 // middleware/authenticateJWT.js
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET;; // 환경 변수로 변경해야 함
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const authenticateJWT = (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
