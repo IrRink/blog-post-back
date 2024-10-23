@@ -18,13 +18,13 @@
         document.getElementById('checkToken').addEventListener('click', () => {
             const token = document.getElementById('token').value;
 
-            fetch('http://localhost:5500/user/profile', {
+            fetch('http://localhost:5000/user/profile', { // 포트 변경
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 }
             })
-            .then(response => {
+            .then(response => { 
                 if (!response.ok) {
                     throw new Error('네트워크 응답이 좋지 않습니다.');
                 }
@@ -45,7 +45,7 @@
                     email: user.email,
                     issuedAt,
                     expiresAt,
-                    naem:user.name,
+                    name: user.name, // 오타 수정: naem -> name
                     isExpired: isExpired ? '만료됨' : '유효함' // 만료 여부 표시
                 };
                 document.getElementById('result').textContent = JSON.stringify(result, null, 2);

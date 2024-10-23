@@ -2,26 +2,21 @@ const UserService = require('../services/userServices'); // UserService 모듈�
 
 // 회원가입 함수
 exports.registerUser = async (req, res) => {
-    // 클라이언트 요청에서 email, name, age, password 추출
     const { email, name, age, password } = req.body;
 
-    // 입력 값 검증: 모든 필드가 채워졌는지 확인
     if (!email || !name || !age || !password) {
-        // 필드가 비어있으면 400 상태 코드와 에러 메시지 응답
         return res.status(400).json({ error: '모든 필드를 입력해야 합니다.' });
     }
 
     try {
-        // UserService를 통해 사용자 등록 처리
-        const user = await UserService.registerUser(email, name, age, password);
-        // 성공 시 201 상태 코드와 성공 메시지 응답
+        await UserService.registerUser(email, name, age, password); // role은 기본값으로 'user'
         res.status(201).json({ message: '회원가입 성공' });
     } catch (error) {
-        // 에러 발생 시 오류 메시지를 콘솔에 출력하고 400 상태 코드 응답
         console.error('회원가입 오류:', error.message);
-        res.status(400).json({ error: error.message }); // 400 Bad Request
+        res.status(400).json({ error: error.message });
     }
 };
+
 
 // 유저 로그인 함수
 exports.loginUser = async (req, res) => {

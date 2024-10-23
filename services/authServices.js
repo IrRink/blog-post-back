@@ -12,22 +12,19 @@ const authService = {
       throw error; // 에러 발생 시 throw로 전달
     }
   },
+
   // 관리자 이름 가져오기
   getAdminName: async () => {
     try {
       const adminName = await authModel.getAdminName(); // 모델에서 이름 가져오기
       return adminName;
     } catch (error) {
-      throw error;
+      throw error; // 에러 발생 시 throw로 전달
     }
   },
   getAdminEmail: async () => {
-    try {
-      const adminEamil = await authModel.getAdminEamil(); // 모델에서 이름 가져오기
-      return adminEamil;
-    } catch (error) {
-      throw error;
-    }
+    const adminEmail = await authModel.getAdminEmail(); // 관리자 이메일 가져오기
+    return adminEmail;
   },
 };
 

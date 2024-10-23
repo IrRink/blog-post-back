@@ -3,20 +3,22 @@ const UserService = require('../services/userServices'); // UserService 모듈�
 
 // 어드민 등록 함수
 exports.registerAdmin = async (req, res) => {
-    // 클라이언트 요청에서 email, name, age, password 추출
     const { email, name, age, password } = req.body;
 
+    if (!email || !name || !age || !password) {
+        return res.status(400).json({ error: '모든 필드를 입력해야 합니다.' });
+    }
+
     try {
-        // AdminService를 통해 어드민 등록 로직 실행
-        await AdminService.registerAdmin(email, name, age, password);
-        // 등록 성공 시 201 상태 코드와 성공 메시지 응답
+        await AdminService.registerAdmin(email, name, age, password); // AdminService를 통해 관리자 등록
         res.status(201).json({ message: '어드민 등록 성공' });
     } catch (error) {
-        // 에러 발생 시 오류 메시지를 콘솔에 출력하고 400 상태 코드와 에러 메시지 응답
-        console.error('어드민 등록 오류:', error);
+        console.error('어드민 등록 오류:', error.message);
         res.status(400).json({ message: error.message });
     }
 };
+
+
 
 // 어드민 로그인 함수
 exports.loginAdmin = async (req, res) => {

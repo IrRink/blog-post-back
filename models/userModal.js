@@ -2,17 +2,16 @@ const pool = require('./pool');
 const bcrypt = require('bcrypt');
 
 class User {
-    static async create(email, name, age, password) {
+    static async create(email, name, age, password, role) {
         const [result] = await pool.execute(
-            'INSERT INTO users (email, name, age, password) VALUES (?, ?, ?, ?)', 
-            [email, name, age, password]
+            'INSERT INTO users (email, name, age, password, role, created_date) VALUES (?, ?, ?, ?, ?, NOW())', 
+            [email, name, age, password, role] // created_date은 NOW()로 설정
         );
         return result;
     }
-
     static async findByEmail(email) {
         const [rows] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
-        return rows[0]; // 첫 번째 사용자 반환
+        return rows[0]; // 첫 번째 결과 반환
     }
 
     static async checkEmailExists(email) {
