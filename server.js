@@ -27,7 +27,7 @@ app.use("/admin", adminRoutes); // 관리자 관련 라우트
 app.use("/info", authRoutes); // 인증 관련 라우트
 app.use("/user", userRoutes); // 사용자 관련 라우트
 // app.use("/token",tokenRoutes);
-app.use("/board", boardRoutes);
+app.use("/posts", boardRoutes);
 
 
 const PORT =  5000;

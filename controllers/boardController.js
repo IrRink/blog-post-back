@@ -3,16 +3,17 @@ const { boardInsert, boardSelect, numBoardSelect, boardUpdate, boardDelete } = r
 
 
 exports.boardWriting = async (req, res) => {
-    const { title, subtitle, board_text, namee} = req.body;
+    const { title, subTitle, boardText, namee} = req.body;
     
-    const userId = namee;
+    // const userId = namee;
+    const userId = "아이알";
 
-    if (!title || !subtitle || !board_text) {
+    if (!title || !subTitle || !boardText) {
         return res.status(400).json({ message: '모든 필드를 입력해야 합니다.' });
     }
 
     try {
-        await boardInsert(title, subtitle, board_text, userId);
+        await boardInsert(title, subTitle, boardText, userId);
         res.status(201).json({ message: '게시물이 성공적으로 추가되었습니다!' });
     } catch (error) {
         console.error('게시물 추가 중 오류 발생:', error);
@@ -47,14 +48,14 @@ exports.boardNumCheck = async (req, res) => {
 
 exports.boardRetouch = async (req, res) => {
     const num = req.params.num;
-    const { title, subtitle, board_text } = req.body;
+    const { title, subTitle, boardText } = req.body;
 
-    if (!title || !subtitle || !board_text) {
+    if (!title || !subTitle || !boardText) {
         return res.status(400).json({ message: '모든 필드를 입력해야 합니다.' });
     }
 
     try {
-        await boardUpdate(num, title, subtitle, board_text);
+        await boardUpdate(num, title, subTitle, boardText);
         res.json('게시물이 성공적으로 업데이트되었습니다!');
     } catch (error) {
         console.error('게시물 업데이트 중 오류 발생:', error);
