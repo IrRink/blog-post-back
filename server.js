@@ -17,9 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 const corsOptions = {
-  origin: ["http://localhost:3000", "http://192.168.99.115:3000", "http://localhost:5500", "http://127.0.0.1:5500"],
-  optionsSuccessStatus: 200,
-  methods: ["GET", "POST", "PUT","DELETE", "OPTIONS"],
+  origin: ["http://localhost:3000", "http://192.168.99.115:3000"],
   credentials: true,
 };
 app.use(cors(corsOptions));
@@ -33,6 +31,6 @@ app.use("/board", boardRoutes);
 
 
 const PORT =  5000;
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
   console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
 });
