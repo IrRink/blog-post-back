@@ -1,4 +1,4 @@
-const { executeQuery } = require('../models/executeQuery');
+const { executeQuery } = require('./executeQuery');
 
 // 게시물 저장
 const boardInsert = async (title, subtitle, boardText, userId) => {
