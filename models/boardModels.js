@@ -1,9 +1,9 @@
-const { executeQuery } = require('../models/executeQuery');
+const { executeQuery } = require('./executeQuery');
 
 // 게시물 저장
-const boardInsert = async (title, subtitle, boardText, userId) => {
-    const insertQuery = 'INSERT INTO boardtable (title, subtitle, board_text, id) VALUES (?, ?, ?, ?)';
-    await executeQuery(insertQuery, [title, subtitle, boardText, userId]);
+const boardInsert = async (title, subTitle, boardText, userId) => {
+    const insertQuery = 'INSERT INTO boardtable (title, subTitle, boardText, writer) VALUES (?, ?, ?, ?)';
+    await executeQuery(insertQuery, [title, subTitle, boardText, userId]);
 };
 
 // 게시물 조회
@@ -27,9 +27,9 @@ const numBoardSelect = async (num) => {
 };
 
 // 게시물 업데이트
-const boardUpdate = async (num, title, subtitle, boardText) => {
-    const updateQuery = 'UPDATE boardtable SET title = ?, subtitle = ?, board_text = ? WHERE num = ?';
-    await executeQuery(updateQuery, [title, subtitle, boardText, num]);
+const boardUpdate = async (num, title, subTitle, boardText) => {
+    const updateQuery = 'UPDATE boardtable SET title = ?, subTitle = ?, boardText = ? WHERE num = ?';
+    await executeQuery(updateQuery, [title, subTitle, boardText, num]);
 };
 
 // 게시물 삭제

@@ -4,18 +4,18 @@ const boardController = require('../controllers/boardController');
 
 
 // 게시물 저장
-router.post('/add-post',boardController.boardWriting);
+router.post('/',boardController.boardWriting);
 
 // 게시물 조회
-router.get('/blogboard', boardController.boardCheck);
+router.get('/', boardController.boardCheck);
 
 // 개별 게시물 조회
-router.get('/blogboard/:num', boardController.boardNumCheck);
+router.get('/:num', boardController.boardNumCheck);
 
 // 게시물 업데이트
-router.post('/update-post/:num', boardController.boardRetouch);
+router.put('/:num', boardController.boardRetouch);
 
 // 게시물 삭제
-router.delete('/delete/:num', boardController.boardRemove);
+router.delete('/:num', boardController.boardRemove);
 
 module.exports = router;
