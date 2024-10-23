@@ -5,8 +5,7 @@ const { boardInsert, boardSelect, numBoardSelect, boardUpdate, boardDelete } = r
 exports.boardWriting = async (req, res) => {
     const { title, subTitle, boardText, namee} = req.body;
     
-    // const userId = namee;
-    const userId = "아이알";
+    const userId = namee;
 
     if (!title || !subTitle || !boardText) {
         return res.status(400).json({ message: '모든 필드를 입력해야 합니다.' });
