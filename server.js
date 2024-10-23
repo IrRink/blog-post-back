@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 const corsOptions = {
-  origin: ["http://localhost:3000", "http://192.168.99.115:3000"],
+  origin: ["http://192.168.99.115:3000","http://localhost:3000"],
   credentials: true,
 };
 app.use(cors(corsOptions));
@@ -26,7 +26,7 @@ app.use(cors(corsOptions));
 app.use("/admin", adminRoutes); // 관리자 관련 라우트
 app.use("/info", authRoutes); // 인증 관련 라우트
 app.use("/user", userRoutes); // 사용자 관련 라우트
-app.use("/token",tokenRoutes);
+// app.use("/token",tokenRoutes);
 app.use("/board", boardRoutes);
 
 
