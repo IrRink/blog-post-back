@@ -18,7 +18,7 @@
         document.getElementById('checkToken').addEventListener('click', () => {
             const token = document.getElementById('token').value;
 
-            fetch('http://localhost:5500/process/profile', {
+            fetch('http://localhost:5500/user/profile', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,

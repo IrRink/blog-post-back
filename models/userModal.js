@@ -26,6 +26,7 @@ class User {
     static async deleteByEmail(email) {
         await pool.execute('DELETE FROM users WHERE email = ?', [email]);
     }
+    
 }
 
 module.exports = User;
