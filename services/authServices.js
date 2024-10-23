@@ -1,5 +1,5 @@
 // services/authServices.js
-const authModel = require('../models/authModal');
+const authModel = require("../models/authModal");
 
 const authService = {
   // 관리자 가입 날짜와 일반 사용자 수 가져오기

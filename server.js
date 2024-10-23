@@ -9,15 +9,19 @@ const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/userRoutes");
 const boardRoutes = require("./routes/boardRoutes");
-const tokenRoutes = require("./routes/tokenRoutes")
+const tokenRoutes = require("./routes/tokenRoutes");
 
-const app = express();  
+const app = express();
 app.use(express.urlencoded({ extended: true }));
-  app.use(express.json());
+app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 const corsOptions = {
-  origin: ["http://192.168.99.115:3000","http://localhost:3000", "http://127.0.0.1:5500"],
+  origin: [
+    "http://192.168.99.115:3000",
+    "http://localhost:3000",
+    "http://127.0.0.1:5500",
+  ],
   credentials: true,
 };
 app.use(cors(corsOptions));
@@ -29,8 +33,7 @@ app.use("/user", userRoutes); // 사용자 관련 라우트
 // app.use("/token",tokenRoutes);
 app.use("/posts", boardRoutes);
 
-
-const PORT =  5000;
+const PORT = 5000;
 app.listen(PORT, () => {
   console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
 });

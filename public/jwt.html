@@ -1,59 +1,66 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>JWT 확인</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>JWT 확인 페이지</h1>
     <label for="token">JWT 토큰 입력:</label>
-    <input type="text" id="token" placeholder="토큰을 입력하세요">
+    <input type="text" id="token" placeholder="토큰을 입력하세요" />
     <button id="checkToken">확인하기</button>
-    
+
     <h2>결과:</h2>
     <pre id="result"></pre>
 
     <script>
-        document.getElementById('checkToken').addEventListener('click', () => {
-            const token = document.getElementById('token').value;
+      document.getElementById("checkToken").addEventListener("click", () => {
+        const token = document.getElementById("token").value;
 
-            fetch('http://localhost:5000/user/profile', { // 포트 변경
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                }
-            })
-            .then(response => { 
-                if (!response.ok) {
-                    throw new Error('네트워크 응답이 좋지 않습니다.');
-                }
-                return response.json();
-            })
-            .then(data => {
-                const { user } = data;
+        fetch("http://localhost:5000/user/profile", {
+          // 포트 변경
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("네트워크 응답이 좋지 않습니다.");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            const { user } = data;
 
-                // iat 및 exp 값을 날짜 및 시간으로 변환
-                const issuedAt = new Date(user.iat * 1000).toLocaleString();
-                const expiresAt = new Date(user.exp * 1000).toLocaleString();
+            // iat 및 exp 값을 날짜 및 시간으로 변환
+            const issuedAt = new Date(user.iat * 1000).toLocaleString();
+            const expiresAt = new Date(user.exp * 1000).toLocaleString();
 
-                // 현재 시간과 exp 비교하여 만료 여부 확인
-                const isExpired = (user.exp * 1000) < Date.now(); // exp를 밀리초로 변환하여 현재 시간과 비교
+            // 현재 시간과 exp 비교하여 만료 여부 확인
+            const isExpired = user.exp * 1000 < Date.now(); // exp를 밀리초로 변환하여 현재 시간과 비교
 
-                // 결과 표시
-                const result = {
-                    email: user.email,
-                    issuedAt,
-                    expiresAt,
-                    name: user.name, // 오타 수정: naem -> name
-                    isExpired: isExpired ? '만료됨' : '유효함' // 만료 여부 표시
-                };
-                document.getElementById('result').textContent = JSON.stringify(result, null, 2);
-            })
-            .catch(error => {
-                document.getElementById('result').textContent = `오류: ${error.message}`;
-            });
-        });
+            // 결과 표시
+            const result = {
+              email: user.email,
+              issuedAt,
+              expiresAt,
+              name: user.name, // 오타 수정: naem -> name
+              isExpired: isExpired ? "만료됨" : "유효함", // 만료 여부 표시
+            };
+            document.getElementById("result").textContent = JSON.stringify(
+              result,
+              null,
+              2
+            );
+          })
+          .catch((error) => {
+            document.getElementById(
+              "result"
+            ).textContent = `오류: ${error.message}`;
+          });
+      });
     </script>
-</body>
+  </body>
 </html>
