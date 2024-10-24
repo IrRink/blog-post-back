@@ -1,6 +1,6 @@
 const {
   insertBoard,
-  boardSelect,
+  selectBoard,
   selectIdBoard,
   updateBoard,
   deleteBoard,
@@ -8,9 +8,9 @@ const {
 
 
 exports.writingBoard = async (req, res) => {
-  const { title, sub_title, board_text, namee } = req.body;
-  
-  const userId = namee;
+  const { title, sub_title, board_text } = req.body;
+
+  const userId = req.user;
 
   if (!title || !sub_title || !board_text) {
     return res.status(400).json({ message: "모든 필드를 입력해야 합니다." });
@@ -27,7 +27,7 @@ exports.writingBoard = async (req, res) => {
 
 exports.checkBoard = async (req, res) => {
   try {
-    const posts = await boardSelect();
+    const posts = await selectBoard();
     res.json(posts);
   } catch (error) {
     console.error("게시물 조회 중 오류 발생:", error);

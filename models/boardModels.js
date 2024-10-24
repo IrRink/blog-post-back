@@ -8,7 +8,7 @@ const insertBoard = async (title, sub_title, board_text, userId) => {
 };
 
 // 게시물 조회
-const boardSelect = async () => {
+const selectBoard = async () => {
   const queries = [
     "SET @count = 0;",
     "UPDATE boardtable SET id = @count := @count + 1;",
@@ -42,7 +42,7 @@ const deleteBoard = async (num) => {
 
 module.exports = {
   insertBoard,
-  boardSelect,
+  selectBoard,
   selectIdBoard,
   updateBoard,
   deleteBoard,
