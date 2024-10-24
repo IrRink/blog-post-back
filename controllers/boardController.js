@@ -8,11 +8,9 @@ const {
 
 
 exports.writingBoard = async (req, res) => {
-  const { title, sub_title, board_text, namee } = req.body;
+  const { title, sub_title, board_text } = req.body;
 
-  // const userId = req.user;
-  const userId = namee;
-  // const userId = "아이알";
+  const userId = req.user;
 
   try {
     await writingBoard(title, sub_title, board_text, userId);
