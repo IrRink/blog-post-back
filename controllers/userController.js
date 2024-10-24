@@ -10,7 +10,7 @@ exports.registerUser = async (req, res) => {
 
   try {
     await UserService.registerUser(email, name, age, password); // role은 기본값으로 'user'
-    res.status(201).json({ message: "회원가입 성공" });
+    res.status(201).json("회원가입 성공");
   } catch (error) {
     console.error("회원가입 오류:", error.message);
     res.status(400).json({ error: error.message });

@@ -12,10 +12,10 @@ exports.registerAdmin = async (req, res) => {
 
   try {
     await AdminService.registerAdmin(email, name, age, password); // AdminService를 통해 관리자 등록
-    res.status(201).text("어드민 등록 성공");
+    res.status(201).json("어드민 등록 성공");
   } catch (error) {
     console.error("어드민 등록 오류:", error.message);
-    res.status(400).json({ message: error.message }); // 오류 메시지만 반환
+    res.status(400).json(error.message); // 오류 메시지만 반환
   }
 };
 
