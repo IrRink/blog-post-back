@@ -42,5 +42,17 @@ const authModel = {
     }
   },
 };
+class PasswordHelper {
+  // 비밀번호 비교 메서드
+  static async compare(inputPassword, storedHash) {
+    try {
+      const isMatch = await bcrypt.compare(inputPassword, storedHash);
+      return isMatch;
+    } catch (error) {
+      console.error("비밀번호 비교 중 오류 발생:", error.message);
+      throw error; // 오류 발생 시 다시 throw
+    }
+  }
+}
 
-module.exports = authModel;
+(module.exports = authModel), PasswordHelper;
