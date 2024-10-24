@@ -22,10 +22,9 @@ class Admin {
 
   // 관리자 등록 (role은 'admin'으로 설정)
   static async create(email, name, age, password) {
-    const hashedPassword = await bcrypt.hash(password, 10); // 비밀번호 해시 처리
     const [result] = await pool.execute(
       "INSERT INTO users (email, name, age, password, role, created_date) VALUES (?, ?, ?, ?, ?, NOW())",
-      [email, name, age, hashedPassword, "admin"] // role을 'admin'으로 설정
+      [email, name, age, password, "admin"]
     );
     return result;
   }

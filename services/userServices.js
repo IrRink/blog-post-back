@@ -97,7 +97,11 @@ class UserService {
         }
       }
 
+      console.log("사용자 정보:", user);
+      console.log("입력된 비밀번호:", password);
+      console.log("저장된 해시 비밀번호:", user.password);
       // 비밀번호 비교
+
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         throw new Error("비밀번호가 틀립니다.");

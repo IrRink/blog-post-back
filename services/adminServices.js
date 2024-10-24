@@ -1,11 +1,12 @@
-const Admin = require("../models/adminModal"); // Admin 모델 가져오기
-const bcrypt = require("bcrypt"); // bcrypt 라이브러리 가져오기
 const {
   emailRegex,
   nameRegex,
   passwordRegex,
   ageRegex,
 } = require("../models/regex"); // 정규 표현식 가져오기
+const Admin = require("../models/adminModal"); // Admin 모델 가져오기
+const bcrypt = require("bcrypt"); // bcrypt 라이브러리 가져오기
+const { generateToken } = require("../services/tokenService"); // 토큰 생성 함수 가져오기
 
 class AdminService {
   // 관리자 등록
@@ -38,7 +39,7 @@ class AdminService {
       throw new Error("이미 존재하는 이메일입니다."); // 이메일이 존재하면 오류 반환
     }
 
-    // 비밀번호 해싱 처리
+    // 비밀번호 해싱
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // 해싱된 비밀번호로 관리자 생성
