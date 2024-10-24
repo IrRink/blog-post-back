@@ -29,9 +29,14 @@ const selectIdBoard = async (num) => {
 
 // 게시물 업데이트
 const updateBoard = async (num, title, sub_title, board_text) => {
+
+  const findMaxIdQuery = "SELECT MAX(id) as maxId FROM boardtable";
+  const result = await executeQuery(findMaxIdQuery);
+  const maxId = result[0].maxId;
+
   const updateQuery =
-    "UPDATE boardtable SET title = ?, sub_title = ?, board_text = ? WHERE id = ?";
-  await executeQuery(updateQuery, [title, sub_title, board_text, num]);
+    "UPDATE boardtable SET title = ?, sub_title = ?, board_text = ?, uptime = NOW(), id = ? WHERE id = ?";
+  await executeQuery(updateQuery, [title, sub_title, board_text, maxId + 1, num]);
 };
 
 // 게시물 삭제
