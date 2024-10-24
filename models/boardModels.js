@@ -1,18 +1,18 @@
 const { executeQuery } = require("./executeQuery");
 
 // 게시물 저장
-const boardInsert = async (title, subTitle, boardText, userId) => {
+const insertBoard = async (title, sub_title, board_text, userId) => {
   const insertQuery =
-    "INSERT INTO boardtable (title, subTitle, boardText, writer) VALUES (?, ?, ?, ?)";
-  await executeQuery(insertQuery, [title, subTitle, boardText, userId]);
+    "INSERT INTO boardtable (title, sub_title, board_text, writer) VALUES (?, ?, ?, ?)";
+  await executeQuery(insertQuery, [title, sub_title, board_text, userId]);
 };
 
 // 게시물 조회
 const boardSelect = async () => {
   const queries = [
     "SET @count = 0;",
-    "UPDATE boardtable SET num = @count := @count + 1;",
-    "SELECT * FROM boardtable ORDER BY num DESC",
+    "UPDATE boardtable SET id = @count := @count + 1;",
+    "SELECT * FROM boardtable ORDER BY id DESC",
   ];
   for (const query of queries) {
     await executeQuery(query);
@@ -21,29 +21,29 @@ const boardSelect = async () => {
 };
 
 // 개별 게시물 조회
-const numBoardSelect = async (num) => {
-  const numSelectQuery = "SELECT * FROM boardtable WHERE num = ?";
+const selectIdBoard = async (num) => {
+  const numSelectQuery = "SELECT * FROM boardtable WHERE id = ?";
   const results = await executeQuery(numSelectQuery, [num]);
   return results[0];
 };
 
 // 게시물 업데이트
-const boardUpdate = async (num, title, subTitle, boardText) => {
+const updateBoard = async (num, title, sub_title, board_text) => {
   const updateQuery =
-    "UPDATE boardtable SET title = ?, subTitle = ?, boardText = ? WHERE num = ?";
-  await executeQuery(updateQuery, [title, subTitle, boardText, num]);
+    "UPDATE boardtable SET title = ?, sub_title = ?, board_text = ? WHERE id = ?";
+  await executeQuery(updateQuery, [title, sub_title, board_text, num]);
 };
 
 // 게시물 삭제
-const boardDelete = async (num) => {
-  const deleteQuery = "DELETE FROM boardtable WHERE num = ?";
+const deleteBoard = async (num) => {
+  const deleteQuery = "DELETE FROM boardtable WHERE id = ?";
   await executeQuery(deleteQuery, [num]);
 };
 
 module.exports = {
-  boardInsert,
+  insertBoard,
   boardSelect,
-  numBoardSelect,
-  boardUpdate,
-  boardDelete,
+  selectIdBoard,
+  updateBoard,
+  deleteBoard,
 };

@@ -31,7 +31,7 @@ app.use("/api/admin", adminRoutes); // 관리자 관련 라우트
 app.use("/api/info", authRoutes); // 인증 관련 라우트
 app.use("/api/user", userRoutes); // 사용자 관련 라우트
 // app.use("/token",tokenRoutes);
-app.use("/posts", boardRoutes);
+app.use("/api/board", boardRoutes);
 
 const PORT = 5000;
 app.listen(PORT, () => {

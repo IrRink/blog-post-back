@@ -3,18 +3,18 @@ const router = express.Router();
 const boardController = require("../controllers/boardController");
 
 // 게시물 저장
-router.post("/", boardController.boardWriting);
+router.post("/", boardController.writingBoard);
 
 // 게시물 조회
-router.get("/", boardController.boardCheck);
+router.get("/", boardController.checkBoard);
 
 // 개별 게시물 조회
-router.get("/:num", boardController.boardNumCheck);
+router.get("/:num", boardController.checkIdBoard);
 
 // 게시물 업데이트
-router.put("/:num", boardController.boardRetouch);
+router.put("/:num", boardController.retouchBoard);
 
 // 게시물 삭제
-router.delete("/:num", boardController.boardRemove);
+router.delete("/:num", boardController.removeBoard);
 
 module.exports = router;

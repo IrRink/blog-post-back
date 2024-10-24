@@ -1,22 +1,23 @@
 const {
-  boardInsert,
+  insertBoard,
   boardSelect,
-  numBoardSelect,
-  boardUpdate,
-  boardDelete,
+  selectIdBoard,
+  updateBoard,
+  deleteBoard,
 } = require("../models/boardModels");
 
-exports.boardWriting = async (req, res) => {
-  const { title, subTitle, boardText, namee } = req.body;
 
+exports.writingBoard = async (req, res) => {
+  const { title, sub_title, board_text, namee } = req.body;
+  
   const userId = namee;
 
-  if (!title || !subTitle || !boardText) {
+  if (!title || !sub_title || !board_text) {
     return res.status(400).json({ message: "모든 필드를 입력해야 합니다." });
   }
 
   try {
-    await boardInsert(title, subTitle, boardText, userId);
+    await insertBoard(title, sub_title, board_text, userId);
     res.status(201).json({ message: "게시물이 성공적으로 추가되었습니다!" });
   } catch (error) {
     console.error("게시물 추가 중 오류 발생:", error);
@@ -24,7 +25,7 @@ exports.boardWriting = async (req, res) => {
   }
 };
 
-exports.boardCheck = async (req, res) => {
+exports.checkBoard = async (req, res) => {
   try {
     const posts = await boardSelect();
     res.json(posts);
@@ -34,11 +35,11 @@ exports.boardCheck = async (req, res) => {
   }
 };
 
-exports.boardNumCheck = async (req, res) => {
+exports.checkIdBoard = async (req, res) => {
   const num = req.params.num;
 
   try {
-    const post = await numBoardSelect(num);
+    const post = await selectIdBoard(num);
     if (!post) {
       return res.status(404).json({ message: "게시물을 찾을 수 없습니다." });
     }
@@ -49,16 +50,16 @@ exports.boardNumCheck = async (req, res) => {
   }
 };
 
-exports.boardRetouch = async (req, res) => {
+exports.retouchBoard = async (req, res) => {
   const num = req.params.num;
-  const { title, subTitle, boardText } = req.body;
+  const { title, sub_title, board_text } = req.body;
 
-  if (!title || !subTitle || !boardText) {
+  if (!title || !sub_title || !board_text) {
     return res.status(400).json({ message: "모든 필드를 입력해야 합니다." });
   }
 
   try {
-    await boardUpdate(num, title, subTitle, boardText);
+    await updateBoard(num, title, sub_title, board_text);
     res.json("게시물이 성공적으로 업데이트되었습니다!");
   } catch (error) {
     console.error("게시물 업데이트 중 오류 발생:", error);
@@ -68,11 +69,11 @@ exports.boardRetouch = async (req, res) => {
   }
 };
 
-exports.boardRemove = async (req, res) => {
+exports.removeBoard = async (req, res) => {
   const num = req.params.num;
 
   try {
-    await boardDelete(num);
+    await deleteBoard(num);
     res.json({ message: "게시물이 성공적으로 삭제되었습니다!" });
   } catch (error) {
     console.error("게시물 삭제 중 오류 발생:", error);
