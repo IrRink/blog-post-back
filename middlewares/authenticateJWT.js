@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/userModal");
 const JWT_SECRET = process.env.JWT_SECRET; // 비밀 키 환경 변수에서 가져오기
 
 const authenticateJWT = (req, res, next) => {
@@ -13,7 +14,9 @@ const authenticateJWT = (req, res, next) => {
       return res.status(403).send("유효하지 않은 토큰입니다.");
     }
 
-    req.user = decoded; // 요청 객체에 사용자 정보를 저장
+    const user = User.findByEmail(decoded.email);
+
+    req.user = user; // 요청 객체에 사용자 정보를 저장
     next();
   });
 };

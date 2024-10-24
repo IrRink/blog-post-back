@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const boardController = require("../controllers/boardController");
+// const authenticateJWT = require("../middlewares/authenticateJWT");
 
 // 게시물 저장
+// router.post("/", authenticateJWT, boardController.writingBoard);
 router.post("/", boardController.writingBoard);
-
 // 게시물 조회
 router.get("/", boardController.checkBoard);
 
