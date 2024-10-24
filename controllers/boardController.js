@@ -6,7 +6,7 @@ const {
   removeBoard,
 } = require("../services/boardServices");
 
-
+//게시글 작성
 exports.writingBoard = async (req, res) => {
   const { title, sub_title, board_text } = req.body;
 
@@ -21,6 +21,7 @@ exports.writingBoard = async (req, res) => {
   }
 };
 
+//게시글 전체 조회
 exports.checkBoard = async (req, res) => {
   try {
     const posts = await checkBoard();
@@ -31,6 +32,7 @@ exports.checkBoard = async (req, res) => {
   }
 };
 
+//게시글 하나만 조회
 exports.checkIdBoard = async (req, res) => {
   const num = req.params.num;
 
@@ -43,6 +45,7 @@ exports.checkIdBoard = async (req, res) => {
   }
 };
 
+//게시글 수정
 exports.retouchBoard = async (req, res) => {
   const num = req.params.num;
   const { title, sub_title, board_text } = req.body;
@@ -56,6 +59,7 @@ exports.retouchBoard = async (req, res) => {
   }
 };
 
+//게시글 삭제
 exports.removeBoard = async (req, res) => {
   const num = req.params.num;
 
