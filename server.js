@@ -27,9 +27,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // 라우트 설정
-app.use("/admin", adminRoutes); // 관리자 관련 라우트
-app.use("/info", authRoutes); // 인증 관련 라우트
-app.use("/user", userRoutes); // 사용자 관련 라우트
+app.use("/api/admin", adminRoutes); // 관리자 관련 라우트
+app.use("/api/info", authRoutes); // 인증 관련 라우트
+app.use("/api/user", userRoutes); // 사용자 관련 라우트
 // app.use("/token",tokenRoutes);
 app.use("/posts", boardRoutes);
 
