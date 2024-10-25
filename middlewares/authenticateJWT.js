@@ -21,6 +21,9 @@ const authenticateJWT = async (req, res, next) => {
 
     // user의 name을 req.user에 저장
     req.user = user.name;
+    req.role = user.role;
+    req.email = user.email;
+
     next();
   } catch (err) {
     console.error("JWT 검증 중 오류 발생:", err);
