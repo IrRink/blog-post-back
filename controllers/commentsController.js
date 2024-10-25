@@ -35,7 +35,7 @@ const {
     const { comment_text } = req.body;
   
     try {
-      await editComment(commentId, comment_text, req.email,req.role);
+      await editComment(commentId, comment_text, req.email, req.role);
       res.json({ message: "댓글이 성공적으로 수정되었습니다!" });
     } catch (error) {
       console.error("댓글 수정 중 오류 발생:", error);

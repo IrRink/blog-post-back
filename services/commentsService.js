@@ -3,7 +3,7 @@ const {
     selectComments,
     updateComment,
     removeComment,
-    selectCommentById,
+    selectCommentId,
   } = require("../models/commentsModels");
   
   const writeComment = async (comment_text, user, email, boardId) => {
@@ -16,7 +16,7 @@ const {
   };
   
   const editComment = async (commentId, comment_text, email, role) => {
-    const existingComment = await selectCommentById(commentId);
+    const existingComment = await selectCommentId(commentId);
     if (email !== existingComment.writer_email && role !== "admin") {
       throw new Error("본인의 댓글만 수정할 수 있습니다.");
     }
@@ -24,7 +24,7 @@ const {
   };
   
   const deleteComment = async (commentId, email, role) => {
-    const existingComment = await selectCommentById(commentId);
+    const existingComment = await selectCommentId(commentId);
     if (email !== existingComment.writer_email && role !== "admin") {
       throw new Error("본인의 댓글만 삭제할 수 있습니다.");
     }

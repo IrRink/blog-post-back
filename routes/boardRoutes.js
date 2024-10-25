@@ -14,7 +14,7 @@ router.get("/", boardController.checkBoard);
 router.get("/:num", boardController.checkIdBoard);
 
 // 게시물 업데이트
-router.put("/:num", authenticateJWT, validateBoard, boardController.retouchBoard);
+router.put("/:num", authenticateJWT, validateBoard, boardController.editBoard);
 
 // 게시물 삭제
 router.delete("/:num", authenticateJWT, boardController.removeBoard);

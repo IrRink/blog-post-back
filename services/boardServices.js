@@ -16,7 +16,7 @@ const checkIdBoard = async (num) => {
     return post;
 };
 
-const retouchBoard = async (num, title, sub_title, board_text) => {
+const editBoard = async (num, title, sub_title, board_text) => {
     await updateBoard(num, title, sub_title, board_text);
 };
 
@@ -28,6 +28,6 @@ module.exports = {
     writingBoard,
     checkBoard,
     checkIdBoard,
-    retouchBoard,
+    editBoard,
     removeBoard
 };

@@ -10,7 +10,7 @@ const selectComments = async (boardId) => {
   return await executeQuery(selectQuery, [boardId]);
 };
 
-const selectCommentById = async (commentId) => {
+const selectCommentId = async (commentId) => {
   const selectQuery = `SELECT * FROM comments WHERE id = ?`;
   const result = await executeQuery(selectQuery, [commentId]);
   return result[0];
@@ -29,7 +29,7 @@ const removeComment = async (commentId) => {
 module.exports = {
   insertComment,
   selectComments,
-  selectCommentById,
+  selectCommentId,
   updateComment,
   removeComment,
 };

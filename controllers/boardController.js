@@ -2,7 +2,7 @@ const {
   writingBoard,
   checkBoard,
   checkIdBoard,
-  retouchBoard,
+  editBoard,
   removeBoard,
 } = require("../services/boardServices");
 
@@ -46,16 +46,16 @@ exports.checkIdBoard = async (req, res) => {
 };
 
 //게시글 수정
-exports.retouchBoard = async (req, res) => {
+exports.editBoard = async (req, res) => {
   const num = req.params.num;
   const { title, sub_title, board_text } = req.body;
 
   try {
-    await retouchBoard(num, title, sub_title, board_text);
+    await editBoard(num, title, sub_title, board_text);
     res.json("게시물이 성공적으로 업데이트되었습니다!");
   } catch (error) {
     console.error("게시물 업데이트 중 오류 발생:", error);
-    res.status(400).json({ message: error.message || "게시물 업데이트 중 오류가 발생했습니다." });
+    res.status(400).json({ message: "게시물 업데이트 중 오류가 발생했습니다." });
   }
 };
 
