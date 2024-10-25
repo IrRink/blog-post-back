@@ -17,6 +17,6 @@ router.get("/:num", boardController.selectIdBoard);
 router.put("/:num", authenticateJWT, validateBoard, boardController.updateBoard);
 
 // 게시물 삭제
-router.delete("/:num/del", authenticateJWT, boardController.deleteBoard);
+router.delete("/:num", authenticateJWT, boardController.deleteBoard);
 
 module.exports = router;
