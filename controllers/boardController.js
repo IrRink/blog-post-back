@@ -7,7 +7,7 @@ const {
 } = require("../services/boardServices");
 
 //게시글 작성
-exports.writingBoard = async (req, res) => {
+exports.insertBoard = async (req, res) => {
   const { title, sub_title, board_text } = req.body;
 
   const userId = req.user;
@@ -22,7 +22,7 @@ exports.writingBoard = async (req, res) => {
 };
 
 //게시글 전체 조회
-exports.checkBoard = async (req, res) => {
+exports.selectBoard = async (req, res) => {
   try {
     const posts = await checkBoard();
     res.json(posts);
@@ -33,7 +33,7 @@ exports.checkBoard = async (req, res) => {
 };
 
 //게시글 하나만 조회
-exports.checkIdBoard = async (req, res) => {
+exports.selectIdBoard = async (req, res) => {
   const num = req.params.num;
 
   try {
@@ -46,7 +46,7 @@ exports.checkIdBoard = async (req, res) => {
 };
 
 //게시글 수정
-exports.editBoard = async (req, res) => {
+exports.updateBoard = async (req, res) => {
   const num = req.params.num;
   const { title, sub_title, board_text } = req.body;
 
@@ -60,7 +60,7 @@ exports.editBoard = async (req, res) => {
 };
 
 //게시글 삭제
-exports.removeBoard = async (req, res) => {
+exports.deleteBoard = async (req, res) => {
   const num = req.params.num;
 
   try {

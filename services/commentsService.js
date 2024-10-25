@@ -2,7 +2,7 @@ const {
     insertComment,
     selectComments,
     updateComment,
-    removeComment,
+    deleteComment,
     selectCommentId,
   } = require("../models/commentsModels");
   
@@ -23,18 +23,18 @@ const {
     await updateComment(commentId, comment_text);
   };
   
-  const deleteComment = async (commentId, email, role) => {
+  const removeComment = async (commentId, email, role) => {
     const existingComment = await selectCommentId(commentId);
     if (email !== existingComment.writer_email && role !== "admin") {
       throw new Error("본인의 댓글만 삭제할 수 있습니다.");
     }
-    await removeComment(commentId);
+    await deleteComment(commentId);
   };
   
   module.exports = {
     writeComment,
     getComments,
     editComment,
-    deleteComment,
+    removeComment,
   };
   

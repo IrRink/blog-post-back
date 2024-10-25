@@ -21,7 +21,7 @@ const updateComment = async (commentId, comment_text) => {
   await executeQuery(updateQuery, [comment_text, commentId]);
 };
 
-const removeComment = async (commentId) => {
+const deleteComment = async (commentId) => {
   const deleteQuery = `DELETE FROM comments WHERE id = ?`;
   await executeQuery(deleteQuery, [commentId]);
 };
@@ -31,5 +31,5 @@ module.exports = {
   selectComments,
   selectCommentId,
   updateComment,
-  removeComment,
+  deleteComment,
 };

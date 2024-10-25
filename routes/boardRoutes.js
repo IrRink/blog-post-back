@@ -5,18 +5,18 @@ const authenticateJWT = require("../middlewares/authenticateJWT");
 const { validateBoard } = require("../middlewares/validationMiddlewares");
 
 // 게시물 저장
-router.post("/", authenticateJWT, validateBoard, boardController.writingBoard);
+router.post("/", authenticateJWT, validateBoard, boardController.insertBoard);
 
 // 게시물 조회
-router.get("/", boardController.checkBoard);
+router.get("/", boardController.selectBoard);
 
 // 개별 게시물 조회
-router.get("/:num", boardController.checkIdBoard);
+router.get("/:num", boardController.selectIdBoard);
 
 // 게시물 업데이트
-router.put("/:num", authenticateJWT, validateBoard, boardController.editBoard);
+router.put("/:num", authenticateJWT, validateBoard, boardController.updateBoard);
 
 // 게시물 삭제
-router.delete("/:num/del", authenticateJWT, boardController.removeBoard);
+router.delete("/:num/del", authenticateJWT, boardController.deleteBoard);
 
 module.exports = router;

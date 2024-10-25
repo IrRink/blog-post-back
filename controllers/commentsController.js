@@ -2,10 +2,10 @@ const {
     writeComment,
     getComments,
     editComment,
-    deleteComment,
+    removeComment,
   } = require("../services/commentsService");
   
-  exports.writeComment = async (req, res) => {
+  exports.insertComment = async (req, res) => {
     const { comment_text } = req.body;
     const boardId = req.params.boardId;
   
@@ -18,7 +18,7 @@ const {
     }
   };
   
-  exports.getComments = async (req, res) => {
+  exports.selectComments = async (req, res) => {
     const boardId = req.params.boardId;
   
     try {
@@ -30,7 +30,7 @@ const {
     }
   };
   
-  exports.editComment = async (req, res) => {
+  exports.updateComment = async (req, res) => {
     const commentId = req.params.commentId;
     const { comment_text } = req.body;
   
@@ -47,7 +47,7 @@ const {
     const commentId = req.params.commentId;
   
     try {
-      await deleteComment(commentId, req.email, req.role);
+      await removeComment(commentId, req.email, req.role);
       res.json({ message: "댓글이 성공적으로 삭제되었습니다!" });
     } catch (error) {
       console.error("댓글 삭제 중 오류 발생:", error);
