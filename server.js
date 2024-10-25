@@ -10,6 +10,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/userRoutes");
 const boardRoutes = require("./routes/boardRoutes");
 const tokenRoutes = require("./routes/tokenRoutes");
+const commentsRoutes = require("./routes/commentsRoutes");
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -32,6 +33,7 @@ app.use("/api/info", authRoutes); // 인증 관련 라우트
 app.use("/api/user", userRoutes); // 사용자 관련 라우트
 // app.use("/token",tokenRoutes);
 app.use("/api/board", boardRoutes);
+app.use("/api/comments", commentsRoutes);
 
 const PORT = 5000;
 app.listen(PORT, () => {

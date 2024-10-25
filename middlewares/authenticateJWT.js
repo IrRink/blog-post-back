@@ -19,11 +19,10 @@ const authenticateJWT = async (req, res, next) => {
       return res.status(404).send("사용자를 찾을 수 없습니다.");
     }
 
-    // user의 ID, 이름 및 이메일을 req.user에 저장
-    req.user = {
-      name: user.name, // 이름 추가
-      email: user.email, // 이메일 추가
-    };
+    // user의 name을 req.user에 저장
+    req.user = user.name;
+    req.role = user.role;
+    req.email = user.email;
 
     next();
   } catch (err) {
