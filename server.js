@@ -37,7 +37,7 @@ app.use("/api/users", userRoutes); // 사용자 관련 라우트
 app.use("/api/boards", boardRoutes);
 app.use("/api/comments", commentsRoutes);
 
-const PORT = 5000;
+const PORT = 8080;
 app.listen(PORT, () => {
   console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
 });
