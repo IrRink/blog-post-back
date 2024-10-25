@@ -25,7 +25,7 @@ class UserService {
       throw new Error("이름은 2자 이상의 한글 또는 영문자여야 합니다.");
     }
     if (!ageRegex.test(age)) {
-      throw new Error("나이는 1세 이상 120세 이하이어야 합니다.");
+      throw new Error("나이는 1세 이상 100세 이하이어야 합니다.");
     }
     if (!passwordRegex.test(password)) {
       throw new Error(
@@ -47,21 +47,6 @@ class UserService {
 
     // 유저 생성
     return await User.create(email, name, age, hashedPassword, userRole);
-  }
-
-  // 이메일 존재 여부 확인
-  static async checkEmailExists(email) {
-    if (!email) {
-      throw new Error("이메일이 제공되지 않았습니다.");
-    }
-
-    try {
-      const userExists = await User.checkEmailExists(email); // 사용자 테이블에서 이메일 확인
-      return userExists;
-    } catch (error) {
-      console.error("이메일 확인 오류:", error.message);
-      throw new Error("이메일 확인 중 오류가 발생했습니다.");
-    }
   }
 
   // 사용자 정보 업데이트

@@ -6,7 +6,6 @@ exports.registerAdmin = async (req, res) => {
   const { email, name, age, password } = req.body;
 
   try {
-    // 유효성 검사는 서비스 내에서 처리됨
     await AdminService.registerAdmin(email, name, age, password);
     res.status(201).json("어드민 등록 성공");
   } catch (error) {

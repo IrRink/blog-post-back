@@ -4,10 +4,6 @@ const UserService = require("../services/userServices"); // UserService 모듈�
 exports.registerUser = async (req, res) => {
   const { email, name, age, password } = req.body;
 
-  if (!email || !name || !age || !password) {
-    return res.status(400).json({ error: "모든 필드를 입력해야 합니다." });
-  }
-
   try {
     await UserService.registerUser(email, name, age, password); // role은 기본값으로 'user'
     res.status(201).json("회원가입 성공");

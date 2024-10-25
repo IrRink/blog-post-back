@@ -42,6 +42,18 @@ const authModel = {
     }
   },
 };
+const getAdminEmail = async () => {
+  const query = "SELECT email FROM users WHERE role = ?";
+  try {
+    const [results] = await pool.execute(query, ["admin"]);
+    if (results.length === 0) {
+      throw new Error("관리자가 없습니다.");
+    }
+    return results[0].email; // 결과의 첫 번째 레코드의 관리자 이메일 반환
+  } catch (error) {
+    throw error; // 에러 발생 시 throw
+  }
+};
 class PasswordHelper {
   // 비밀번호 비교 메서드
   static async compare(inputPassword, storedHash) {
