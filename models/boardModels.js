@@ -7,7 +7,7 @@ const insertBoard = async (title, sub_title, board_text, userId) => {
   await executeQuery(insertQuery, [title, sub_title, board_text, userId]);
 };
 
-// 게시물 조회
+// 게시물 전체 조회
 const selectBoard = async () => {
   const selectquerie = "SELECT * FROM boardtable ORDER BY uptime DESC";
   return await executeQuery(selectquerie);
@@ -20,7 +20,7 @@ const selectIdBoard = async (num) => {
   return results[0];
 };
 
-// 게시물 업데이트
+// 게시물 수정
 const updateBoard = async (num, title, sub_title, board_text) => {
   const updateQuery =
     "UPDATE boardtable SET title = ?, sub_title = ?, board_text = ?, uptime = NOW() WHERE id = ?";

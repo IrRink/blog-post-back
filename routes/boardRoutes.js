@@ -7,13 +7,13 @@ const { validateBoard } = require("../middlewares/validationMiddlewares");
 // 게시물 저장
 router.post("/", authenticateJWT, validateBoard, boardController.insertBoard);
 
-// 게시물 조회
+// 게시물 전체 조회
 router.get("/", boardController.selectBoard);
 
 // 개별 게시물 조회
 router.get("/:num", boardController.selectIdBoard);
 
-// 게시물 업데이트
+// 게시물 수정
 router.put("/:num", authenticateJWT, validateBoard, boardController.updateBoard);
 
 // 게시물 삭제

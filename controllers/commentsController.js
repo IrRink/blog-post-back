@@ -5,6 +5,7 @@ const {
     removeComment,
   } = require("../services/commentsService");
   
+  // 댓글 작성
   exports.insertComment = async (req, res) => {
     const { comment_text } = req.body;
     const boardId = req.params.boardId;
@@ -18,6 +19,7 @@ const {
     }
   };
   
+  // 게시물 댓글 조회
   exports.selectComments = async (req, res) => {
     const boardId = req.params.boardId;
   
@@ -30,6 +32,7 @@ const {
     }
   };
   
+  // 댓글 수정
   exports.updateComment = async (req, res) => {
     const commentId = req.params.commentId;
     const { comment_text } = req.body;
@@ -43,6 +46,7 @@ const {
     }
   };
   
+  // 댓글 삭제
   exports.deleteComment = async (req, res) => {
     const commentId = req.params.commentId;
   
