@@ -32,7 +32,7 @@ app.use("/api/admin", adminRoutes); // 관리자 관련 라우트
 app.use("/api/info", authRoutes); // 인증 관련 라우트
 app.use("/api/users", userRoutes); // 사용자 관련 라우트
 // app.use("/token",tokenRoutes);
-app.use("/api/board", boardRoutes);
+app.use("/api/boards", boardRoutes);
 app.use("/api/comments", commentsRoutes);
 
 const PORT = 5000;
