@@ -13,14 +13,18 @@ const authenticateJWT = async (req, res, next) => {
     const decoded = jwt.verify(token, JWT_SECRET); // JWT 토큰 검증
 
     // decoded.email로 사용자 정보를 가져오기
-    const user = await findByEmail(decoded.email); 
+    const user = await findByEmail(decoded.email);
 
     if (!user) {
       return res.status(404).send("사용자를 찾을 수 없습니다.");
     }
 
-    // user의 name을 req.user에 저장
-    req.user = user.name;
+    // user의 ID, 이름 및 이메일을 req.user에 저장
+    req.user = {
+      name: user.name, // 이름 추가
+      email: user.email, // 이메일 추가
+    };
+
     next();
   } catch (err) {
     console.error("JWT 검증 중 오류 발생:", err);

@@ -96,10 +96,6 @@ class UserService {
           throw new Error("로그인 할 수 없습니다.");
         }
       }
-
-      console.log("사용자 정보:", user);
-      console.log("입력된 비밀번호:", password);
-      console.log("저장된 해시 비밀번호:", user.password);
       // 비밀번호 비교
 
       const isMatch = await bcrypt.compare(password, user.password);

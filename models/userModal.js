@@ -2,11 +2,10 @@ const pool = require("./pool");
 const bcrypt = require("bcrypt");
 
 class User {
-  static async create(email, name, age, password) {
-    const hashedPassword = await bcrypt.hash(password, 10);
+  static async create(email, name, age, password, role) {
     const [result] = await pool.execute(
       "INSERT INTO users (email, name, age, password, role, created_date) VALUES (?, ?, ?, ?, ?, NOW())",
-      [email, name, age, hashedPassword, "user"]
+      [email, name, age, password, role] // 비밀번호가 해싱된 상태로 넘어온다
     );
     return result;
   }

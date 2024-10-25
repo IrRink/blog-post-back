@@ -3,49 +3,133 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>회원 탈퇴</title>
+    <title>로그인 및 JWT 확인</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   </head>
   <body>
-    <h1>회원 탈퇴</h1>
-    <p>탈퇴하시려면 아래 버튼을 클릭하세요.</p>
-    <button id="deleteAccountBtn">회원 탈퇴</button>
+    <h1>로그인 및 JWT 확인 페이지</h1>
+
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="이메일" required />
+      <input
+        type="password"
+        id="password"
+        placeholder="비밀번호"
+        required
+        autocomplete="current-password"
+      />
+      <label><input type="checkbox" id="isAdmin" /> 관리자 로그인</label>
+      <button type="submit">로그인</button>
+    </form>
+
+    <button id="logoutButton" style="display: none">로그아웃</button>
+
+    <h2>JWT 확인</h2>
+    <label for="token">JWT 토큰 입력:</label>
+    <input type="text" id="token" placeholder="토큰을 입력하세요" />
+    <button id="checkToken">확인하기</button>
+
+    <h2>결과:</h2>
+    <pre id="result"></pre>
 
     <script>
-      // 로그인 상태 확인
-      const token = sessionStorage.getItem("token");
-      if (!token) {
-        alert("로그인이 필요합니다.");
-        window.location.href = "/blog-post-back/public/index.html"; // 로그인 페이지로 리디렉션
-      }
+      // 로그인 처리
+      document.getElementById("loginForm").onsubmit = function (event) {
+        event.preventDefault();
 
-      document
-        .getElementById("deleteAccountBtn")
-        .addEventListener("click", async () => {
-          const confirmation = confirm("정말로 탈퇴하시겠습니까?");
-          if (confirmation) {
-            try {
-              const response = await fetch("/user/deleteAccount", {
-                method: "DELETE",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`, // JWT 토큰을 포함
-                },
-              });
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const isAdmin = document.getElementById("isAdmin").checked;
 
-              if (response.ok) {
-                alert("회원 탈퇴가 완료되었습니다.");
-                sessionStorage.removeItem("token"); // 토큰 제거
-                window.location.href = "/"; // 홈 페이지로 리디렉션
-              } else {
-                const errorData = await response.json();
-                alert(`탈퇴 실패: ${errorData.error}`);
-              }
-            } catch (error) {
-              console.error("탈퇴 중 오류 발생:", error);
-              alert("탈퇴 중 오류가 발생했습니다. 나중에 다시 시도해 주세요.");
+        // 요청 데이터 로깅 추가
+        console.log("로그인 요청 데이터:", { email, password, isAdmin });
+
+        // URLSearchParams 객체 생성
+        const params = new URLSearchParams();
+        params.append("email", email);
+        params.append("password", password);
+        params.append("isAdmin", isAdmin);
+
+        // 관리자인 경우 관리자 로그인 API를 사용하고, 아닐 경우 일반 사용자 로그인 API를 사용
+        const loginUrl = isAdmin
+          ? "http://localhost:5000/api/admin/login"
+          : "http://localhost:5000/api/user/login";
+
+        // axios를 이용한 POST 요청
+        axios
+          .post(loginUrl, params, {
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          })
+          .then((response) => {
+            console.log("로그인 성공:", response.data);
+            localStorage.setItem("token", response.data.accessToken); // 로컬 스토리지에 accessToken 저장
+            document.getElementById("logoutButton").style.display = "block"; // 로그아웃 버튼 표시
+          })
+          .catch((error) => {
+            console.error("로그인 요청 중 오류 발생:", error);
+            const errorMessage =
+              error.response?.data?.error ||
+              "로그인 요청에 오류가 발생했습니다.";
+            alert(errorMessage); // 오류 메시지 표시
+          });
+      };
+
+      // 로그아웃 처리
+      document.getElementById("logoutButton").onclick = function () {
+        localStorage.removeItem("token");
+        console.log("로그아웃 성공");
+        document.getElementById("logoutButton").style.display = "none"; // 로그아웃 버튼 숨기기
+      };
+
+      // JWT 확인 처리
+      document.getElementById("checkToken").addEventListener("click", () => {
+        const token = document.getElementById("token").value;
+
+        fetch("http://localhost:5000/api/user/profile", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Bearer로 시작해야 합니다.
+          },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("네트워크 응답이 좋지 않습니다.");
             }
-          }
-        });
+            return response.json();
+          })
+          .then((data) => {
+            // iat 및 exp 값을 날짜 및 시간으로 변환
+            const issuedAt = new Date(data.iat * 1000).toLocaleString();
+            const expiresAt = new Date(data.exp * 1000).toLocaleString();
+
+            // 현재 시간과 exp 비교하여 만료 여부 확인
+            const isExpired =
+              data.exp * 1000 < Date.now() ? "만료됨" : "유효함";
+
+            // 결과 표시
+            const result = {
+              id: data.id,
+              name: data.name,
+              email: data.email,
+              issuedAt: issuedAt,
+              expiresAt: expiresAt,
+              isExpired: isExpired,
+            };
+            document.getElementById("result").textContent = JSON.stringify(
+              result,
+              null,
+              2
+            );
+          })
+          .catch((error) => {
+            document.getElementById(
+              "result"
+            ).textContent = `오류: ${error.message}`;
+          });
+      });
     </script>
   </body>
 </html>

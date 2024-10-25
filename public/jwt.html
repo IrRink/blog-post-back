@@ -18,11 +18,11 @@
       document.getElementById("checkToken").addEventListener("click", () => {
         const token = document.getElementById("token").value;
 
-        fetch("http://localhost:5000/user/profile", {
-          // 포트 변경
+        fetch("http://localhost:5000/api/user/profile", {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Bearer로 시작해야 합니다.
           },
         })
           .then((response) => {
@@ -32,22 +32,22 @@
             return response.json();
           })
           .then((data) => {
-            const { user } = data;
-
             // iat 및 exp 값을 날짜 및 시간으로 변환
-            const issuedAt = new Date(user.iat * 1000).toLocaleString();
-            const expiresAt = new Date(user.exp * 1000).toLocaleString();
+            const issuedAt = new Date(data.iat * 1000).toLocaleString();
+            const expiresAt = new Date(data.exp * 1000).toLocaleString();
 
             // 현재 시간과 exp 비교하여 만료 여부 확인
-            const isExpired = user.exp * 1000 < Date.now(); // exp를 밀리초로 변환하여 현재 시간과 비교
+            const isExpired =
+              data.exp * 1000 < Date.now() ? "만료됨" : "유효함";
 
             // 결과 표시
             const result = {
-              email: user.email,
-              issuedAt,
-              expiresAt,
-              name: user.name, // 오타 수정: naem -> name
-              isExpired: isExpired ? "만료됨" : "유효함", // 만료 여부 표시
+              id: data.id,
+              name: data.name,
+              email: data.email,
+              issuedAt: issuedAt,
+              expiresAt: expiresAt,
+              isExpired: isExpired,
             };
             document.getElementById("result").textContent = JSON.stringify(
               result,

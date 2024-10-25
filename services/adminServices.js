@@ -6,7 +6,6 @@ const {
 } = require("../models/regex"); // 정규 표현식 가져오기
 const Admin = require("../models/adminModal"); // Admin 모델 가져오기
 const bcrypt = require("bcrypt"); // bcrypt 라이브러리 가져오기
-const { generateToken } = require("../services/tokenService"); // 토큰 생성 함수 가져오기
 
 class AdminService {
   // 관리자 등록
@@ -18,20 +17,7 @@ class AdminService {
     }
 
     // 필드 유효성 검사
-    if (!emailRegex.test(email)) {
-      throw new Error("유효한 이메일 주소를 입력하세요.");
-    }
-    if (!nameRegex.test(name)) {
-      throw new Error("이름은 한글 또는 영문자 2자 이상이어야 합니다.");
-    }
-    if (!passwordRegex.test(password)) {
-      throw new Error(
-        "비밀번호는 최소 8자 이상이어야 하며, 대문자, 소문자, 숫자 및 특수 문자를 포함해야 합니다."
-      );
-    }
-    if (!ageRegex.test(age)) {
-      throw new Error("나이는 1세 이상 120세 이하의 숫자여야 합니다.");
-    }
+    AdminService.validateAdminFields(email, name, age, password);
 
     // 이메일 중복 확인
     const existingUser = await Admin.checkEmailExists(email);
@@ -44,6 +30,24 @@ class AdminService {
 
     // 해싱된 비밀번호로 관리자 생성
     return await Admin.create(email, name, age, hashedPassword);
+  }
+
+  // 유효성 검사 메서드
+  static validateAdminFields(email, name, age, password) {
+    if (!emailRegex.test(email)) {
+      throw new Error("유효한 이메일 주소를 입력하세요.");
+    }
+    if (!nameRegex.test(name)) {
+      throw new Error("이름은 한글 또는 영문자 2자 이상이어야 합니다.");
+    }
+    if (!passwordRegex.test(password)) {
+      throw new Error(
+        "비밀번호는 최소 8자 이상이어야 하며, 대문자, 소문자, 숫자 및 특수 문자를 포함해야 합니다."
+      );
+    }
+    if (!ageRegex.test(age)) {
+      throw new Error("나이는 1세 이상 100세 이하의 숫자여야 합니다.");
+    }
   }
 }
 

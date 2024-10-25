@@ -5,17 +5,13 @@ const UserService = require("../services/userServices"); // UserService 모듈�
 exports.registerAdmin = async (req, res) => {
   const { email, name, age, password } = req.body;
 
-  // 필드 유효성 검사
-  if (!email || !name || !age || !password) {
-    return res.status(400).json({ error: "모든 필드를 입력해야 합니다." });
-  }
-
   try {
-    await AdminService.registerAdmin(email, name, age, password); // AdminService를 통해 관리자 등록
+    // 유효성 검사는 서비스 내에서 처리됨
+    await AdminService.registerAdmin(email, name, age, password);
     res.status(201).json("어드민 등록 성공");
   } catch (error) {
     console.error("어드민 등록 오류:", error.message);
-    res.status(400).json(error.message); // 오류 메시지만 반환
+    res.status(400).json({ error: error.message });
   }
 };
 
