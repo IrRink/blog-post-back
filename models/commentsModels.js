@@ -8,7 +8,7 @@ const insertComment = async (comment_text, user, email, boardId) => {
 
 // 게시물 댓글 조회
 const selectComments = async (boardId) => {
-  const selectQuery = `SELECT * FROM comments WHERE board_id = ? ORDER BY time DESC`;
+  const selectQuery = `SELECT * FROM comments WHERE board_id = ? ORDER BY uptime DESC`;
   return await executeQuery(selectQuery, [boardId]);
 };
 
