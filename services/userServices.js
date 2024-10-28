@@ -1,5 +1,6 @@
 const User = require("../models/userModal");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const { generateToken } = require("./tokenService"); // 토큰 생성 로직을 포함한 파일
 const pool = require("../models/pool");
 const {
@@ -104,6 +105,24 @@ class UserService {
     } catch (error) {
       console.error("리프레시 토큰 무효화 오류:", error.message);
       throw new Error("리프레시 토큰 무효화 중 오류가 발생했습니다.");
+    }
+  }
+  static async getUserInfo(req) {
+    try {
+      const token = req.headers.authorization.split(" ")[1]; // Authorization 헤더에서 토큰 추출
+      const decoded = jwt.verify(token, process.env.JWT_SECRET); // 토큰 검증
+      const email = decoded.email;
+
+      // 사용자 정보 조회
+      const user = await User.findByEmail(email);
+      if (!user) {
+        throw new Error("사용자를 찾을 수 없습니다.");
+      }
+
+      return user; // 사용자 정보를 반환
+    } catch (error) {
+      console.error("사용자 정보 조회 중 오류 발생:", error.message);
+      throw new Error("사용자 정보 조회 중 오류가 발생했습니다.");
     }
   }
 }

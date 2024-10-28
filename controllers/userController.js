@@ -94,3 +94,13 @@ exports.deleteAccount = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+exports.getUserInfo = async (req, res) => {
+  try {
+    const user = await UserService.getUserInfo(req); // req를 전달하여 서비스에서 토큰 추출
+    res.status(200).json({ message: "사용자 정보 조회 성공", user });
+  } catch (error) {
+    console.error("사용자 정보 조회 중 오류 발생:", error.message);
+    res.status(404).json({ message: error.message });
+  }
+};
