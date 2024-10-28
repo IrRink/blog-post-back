@@ -23,7 +23,7 @@ const selectIdBoard = async (num) => {
 // 게시물 수정
 const updateBoard = async (num, title, sub_title, board_text) => {
   const updateQuery =
-    "UPDATE boardtable SET title = ?, sub_title = ?, board_text = ?, uptime = NOW() WHERE id = ?";
+    "UPDATE boardtable SET title = ?, sub_title = ?, board_text = ? WHERE id = ?";
   await executeQuery(updateQuery, [title, sub_title, board_text, num]);
 };
 
