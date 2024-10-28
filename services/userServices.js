@@ -54,11 +54,6 @@ class UserService {
     return await User.checkEmailExists(email);
   }
 
-  // 사용자 정보 업데이트
-  static async updateUser(email, data) {
-    await User.updateUser(email, data);
-  }
-
   // 사용자 로그인
   static async loginUser(email, password, isAdmin) {
     let user;
@@ -128,6 +123,37 @@ class UserService {
       console.error("사용자 정보 조회 중 오류 발생:", error.message);
       throw new Error("사용자 정보 조회 중 오류가 발생했습니다.");
     }
+  }
+
+  static async updateUserInfo(currentEmail, userData) {
+    // 현재 사용자의 기존 정보를 가져옵니다.
+    const existingUser = await User.findByEmail(currentEmail);
+
+    // 현재 값을 기본으로 설정합니다.
+    const name =
+      userData.name !== undefined ? userData.name : existingUser.name; // 기본값: 현재 이름
+    const age = userData.age !== undefined ? userData.age : existingUser.age; // 기본값: 현재 나이
+    const email =
+      userData.email !== undefined ? userData.email : existingUser.email; // 기본값: 현재 이메일
+
+    // 새 이메일이 현재 이메일과 다를 경우 중복 체크
+    if (email !== currentEmail) {
+      const emailExists = await User.findByEmail(email);
+      if (emailExists) {
+        throw new Error("이메일이 이미 존재합니다."); // 중복된 이메일 처리
+      }
+    }
+
+    // 수정할 데이터
+    const updatedData = {
+      name,
+      age,
+      email,
+    };
+
+    // 사용자 정보 수정
+    const updatedUserData = await User.updateUser(currentEmail, updatedData);
+    return updatedUserData;
   }
 }
 

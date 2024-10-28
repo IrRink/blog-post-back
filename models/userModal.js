@@ -24,16 +24,30 @@ class User {
     return rows[0].count > 0; // 존재하면 true 반환
   }
 
-  static async updateUser(email, data) {
-    const { name, age } = data; // 업데이트할 데이터 추출
-    await pool.execute("UPDATE users SET name = ?, age = ? WHERE email = ?", [
-      name,
-      age,
-      email,
-    ]);
-  }
-  static async deleteByEmail(email) {
-    await pool.execute("DELETE FROM users WHERE email = ?", [email]);
+  // 모델 파일
+
+  static async updateUser(currentEmail, updatedData) {
+    const { name, age, email } = updatedData;
+
+    const sql = `
+      UPDATE users 
+      SET 
+        name = ?, 
+        age = ?, 
+        email = ? 
+      WHERE email = ?
+    `;
+
+    // SQL 쿼리의 파라미터
+    const values = [name, age, email, currentEmail];
+
+    try {
+      const [result] = await pool.execute(sql, values);
+      return result; // 수정된 사용자 정보 반환
+    } catch (error) {
+      console.error("사용자 정보 수정 중 오류 발생:", error.message);
+      throw error; // 오류를 던져서 상위 함수에서 처리
+    }
   }
 }
 
