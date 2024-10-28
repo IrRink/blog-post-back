@@ -1,7 +1,8 @@
 const { insertBoard, selectBoard, selectIdBoard, updateBoard, deleteBoard } = require("../models/boardModels");
 
 // 게시물 저장
-const writingBoard = async (title, sub_title, board_text, userId) => {
+const writingBoard = async (title, sub_title, board_text, userId, role) => {
+    if (role == "user")throw new Error("관리자가 아닙니다");
     await insertBoard(title, sub_title, board_text, userId);
 };
 
@@ -20,12 +21,14 @@ const checkIdBoard = async (num) => {
 };
 
 // 게시물 수정
-const editBoard = async (num, title, sub_title, board_text) => {
+const editBoard = async (num, title, sub_title, board_text, role) => {
+    if (role == "user")throw new Error("관리자가 아닙니다");
     await updateBoard(num, title, sub_title, board_text);
 };
 
 // 게시물 삭제
-const removeBoard = async (num) => {
+const removeBoard = async (num, role) => {
+    if (role == "user")throw new Error("관리자가 아닙니다");
     await deleteBoard(num);
 };
 

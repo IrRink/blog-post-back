@@ -12,6 +12,7 @@ const userRoutes = require("./routes/userRoutes");
 const boardRoutes = require("./routes/boardRoutes");
 const tokenRoutes = require("./routes/tokenRoutes");
 const commentsRoutes = require("./routes/commentsRoutes");
+const likesRoutes = require("./routes/likesRoutes");
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -34,8 +35,9 @@ app.use("/api/admin", adminRoutes); // 관리자 관련 라우트
 app.use("/api/info", authRoutes); // 인증 관련 라우트
 app.use("/api/users", userRoutes); // 사용자 관련 라우트
 // app.use("/token",tokenRoutes);
-app.use("/api/boards", boardRoutes);
-app.use("/api/comments", commentsRoutes);
+app.use("/api/boards", boardRoutes); // 게시판 관련 라우트
+app.use("/api/comments", commentsRoutes); // 댓글 관련 라우트
+app.use("/api/likes", likesRoutes); // 좋아요 관련 라우트
 
 const PORT = 8080;
 app.listen(PORT, () => {
