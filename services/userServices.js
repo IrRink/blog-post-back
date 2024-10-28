@@ -146,10 +146,30 @@ class UserService {
     const age = userData.age !== undefined ? userData.age : existingUser.age;
     const email =
       userData.email !== undefined ? userData.email : existingUser.email;
-    const password =
+    let password =
       userData.password !== undefined
         ? userData.password
         : existingUser.password;
+
+    // 정규 표현식 검사
+    if (userData.email && !emailRegex.test(userData.email)) {
+      throw new Error("유효하지 않은 이메일 형식입니다.");
+    }
+    if (userData.name && !nameRegex.test(userData.name)) {
+      throw new Error("유효하지 않은 이름 형식입니다.");
+    }
+    if (userData.age && !ageRegex.test(userData.age)) {
+      throw new Error("유효하지 않은 나이입니다.");
+    }
+    if (userData.password && !passwordRegex.test(userData.password)) {
+      throw new Error("유효하지 않은 비밀번호 형식입니다.");
+    }
+
+    // 비밀번호 해시 처리
+    if (userData.password) {
+      const salt = await bcrypt.genSalt(10);
+      password = await bcrypt.hash(password, salt);
+    }
 
     console.log("기존 사용자 정보:", existingUser);
     console.log("변경된 사용자 정보:", { name, age, email });

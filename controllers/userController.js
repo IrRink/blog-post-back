@@ -86,25 +86,20 @@ exports.getUserInfo = async (req, res) => {
     res.status(404).json({ message: error.message });
   }
 };
+
 exports.updateUser = async (req, res) => {
   const currentEmail = req.email; // 토큰에서 추출된 이메일
   const userData = req.body; // 사용자 요청 데이터 (수정할 데이터)
+
   console.log("수정할 데이터:", userData);
 
   try {
-    // 기존 사용자 정보 가져오기
-    const existingUser = await UserService.getUserInfo(currentEmail);
-
-    // 사용자 정보 업데이트
     const updatedUser = await UserService.updateUserInfo(
       currentEmail,
       userData
     );
-
     res.status(200).json({
-      message: "사용자 정보가 성공적으로 수정되었습니다.",
-      existingUser, // 기존 사용자 정보 반환
-      updatedUser, // 수정된 사용자 정보 반환
+      message: "사용자 정보가 성공적으로 수정되었습니다. 다시 로그인해주세요.",
     });
   } catch (error) {
     console.error("사용자 정보 수정 중 오류 발생:", error.message);
