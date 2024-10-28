@@ -125,3 +125,17 @@ exports.deleteUser = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+exports.resetPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const temporaryPassword = await UserService.resetPassword(email);
+    res.status(200).json({
+      message: "임시 비밀번호가 생성되었습니다.",
+      temporaryPassword,
+    });
+  } catch (error) {
+    console.error("비밀번호 재설정 중 오류 발생:", error.message);
+    res.status(404).json({ error: error.message });
+  }
+};

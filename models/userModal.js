@@ -47,5 +47,16 @@ class User {
     const [result] = await pool.execute(sql, values);
     return result;
   }
+  static async checkEmailExists(email) {
+    const sql = `SELECT * FROM users WHERE email = ?`;
+    const [result] = await pool.execute(sql, [email]);
+    return result.length > 0; // 사용자가 존재하면 true 반환
+  }
+
+  static async updatePassword(email, newPassword) {
+    const hashedPassword = await bcrypt.hash(newPassword, 10); // 비밀번호 해시화
+    const sql = `UPDATE users SET password = ? WHERE email = ?`;
+    await pool.execute(sql, [hashedPassword, email]); // 비밀번호 업데이트
+  }
 }
 module.exports = User;

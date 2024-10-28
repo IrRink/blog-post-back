@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { generateToken } = require("./tokenService"); // 토큰 생성 로직을 포함한 파일
 const pool = require("../models/pool");
+const crypto = require("crypto");
 const {
   emailRegex,
   nameRegex,
@@ -197,6 +198,30 @@ class UserService {
     }
     return result; // 삭제 결과 반환
   }
-}
 
+  // 임시 비밀번호 생성 함수
+  static generateTemporaryPassword(length = 8) {
+    return crypto.randomBytes(length).toString("hex").slice(0, length);
+  }
+
+  // 비밀번호 재설정 메서드
+  static async resetPassword(email) {
+    const temporaryPassword = this.generateTemporaryPassword();
+
+    // 임시 비밀번호를 해시화
+    const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
+
+    // 해시화된 임시 비밀번호를 DB에 저장
+    const sql = `UPDATE users SET password = ? WHERE email = ?`;
+    const values = [hashedPassword, email];
+
+    const [result] = await pool.execute(sql, values);
+
+    if (result.affectedRows === 0) {
+      throw new Error("사용자를 찾을 수 없습니다.");
+    }
+
+    return temporaryPassword; // 임시 비밀번호 반환
+  }
+}
 module.exports = UserService;

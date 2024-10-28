@@ -14,4 +14,5 @@ router.post("/refresh-token", refreshToken);
 router.get("/auth", userController.getUserInfo);
 router.delete("/auth", authenticateJWT, userController.deleteUser);
 router.put("/auth", authenticateJWT, userController.updateUser);
+router.post("/auth", userController.resetPassword); // 비밀번호 재설정 라우트
 module.exports = router;
