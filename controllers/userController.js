@@ -76,21 +76,35 @@ exports.getUserInfo = async (req, res) => {
     res.status(200).json({ message: "사용자 정보 조회 성공", user });
   } catch (error) {
     console.error("사용자 정보 조회 중 오류 발생:", error.message);
+
+    // 인증 실패에 따른 403 에러 처리
+    if (error.message === "유효하지 않은 토큰입니다.") {
+      return res.status(403).json({ message: "토큰이 만료되었습니다." });
+    }
+
+    // 사용자 찾기 실패에 따른 404 에러 처리
     res.status(404).json({ message: error.message });
   }
 };
-
 exports.updateUser = async (req, res) => {
-  const { email } = req.user; // JWT에서 사용자 이메일 추출
-  const userData = req.body; // 수정할 데이터
-
-  console.log("수정할 데이터:", userData); // 로그 추가
+  const currentEmail = req.email; // 토큰에서 추출된 이메일
+  const userData = req.body; // 사용자 요청 데이터 (수정할 데이터)
+  console.log("수정할 데이터:", userData);
 
   try {
-    const updatedUser = await UserService.updateUserInfo(email, userData);
+    // 기존 사용자 정보 가져오기
+    const existingUser = await UserService.getUserInfo(currentEmail);
+
+    // 사용자 정보 업데이트
+    const updatedUser = await UserService.updateUserInfo(
+      currentEmail,
+      userData
+    );
+
     res.status(200).json({
       message: "사용자 정보가 성공적으로 수정되었습니다.",
-      updatedUser,
+      existingUser, // 기존 사용자 정보 반환
+      updatedUser, // 수정된 사용자 정보 반환
     });
   } catch (error) {
     console.error("사용자 정보 수정 중 오류 발생:", error.message);

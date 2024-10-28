@@ -24,31 +24,17 @@ class User {
     return rows[0].count > 0; // 존재하면 true 반환
   }
 
-  // 모델 파일
-
   static async updateUser(currentEmail, updatedData) {
-    const { name, age, email } = updatedData;
-
     const sql = `
-      UPDATE users 
-      SET 
-        name = ?, 
-        age = ?, 
-        email = ? 
+      UPDATE users
+      SET name = ?, age = ?, email = ?, password = ?
       WHERE email = ?
     `;
+    const { name, age, email, password } = updatedData;
+    const values = [name, age, email, password, currentEmail];
 
-    // SQL 쿼리의 파라미터
-    const values = [name, age, email, currentEmail];
-
-    try {
-      const [result] = await pool.execute(sql, values);
-      return result; // 수정된 사용자 정보 반환
-    } catch (error) {
-      console.error("사용자 정보 수정 중 오류 발생:", error.message);
-      throw error; // 오류를 던져서 상위 함수에서 처리
-    }
+    const [result] = await pool.execute(sql, values);
+    return result; // 업데이트 결과 반환
   }
 }
-
 module.exports = User;

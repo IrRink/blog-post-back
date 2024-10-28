@@ -126,34 +126,42 @@ class UserService {
   }
 
   static async updateUserInfo(currentEmail, userData) {
-    // 현재 사용자의 기존 정보를 가져옵니다.
+    // 기존 사용자 정보 가져오기
     const existingUser = await User.findByEmail(currentEmail);
+    if (!existingUser) {
+      throw new Error("사용자를 찾을 수 없습니다.");
+    }
 
-    // 현재 값을 기본으로 설정합니다.
-    const name =
-      userData.name !== undefined ? userData.name : existingUser.name; // 기본값: 현재 이름
-    const age = userData.age !== undefined ? userData.age : existingUser.age; // 기본값: 현재 나이
-    const email =
-      userData.email !== undefined ? userData.email : existingUser.email; // 기본값: 현재 이메일
-
-    // 새 이메일이 현재 이메일과 다를 경우 중복 체크
-    if (email !== currentEmail) {
-      const emailExists = await User.findByEmail(email);
+    // 이메일 중복 체크
+    if (userData.email && userData.email !== currentEmail) {
+      const emailExists = await User.findByEmail(userData.email);
       if (emailExists) {
-        throw new Error("이메일이 이미 존재합니다."); // 중복된 이메일 처리
+        throw new Error("이메일이 이미 존재합니다.");
       }
     }
 
-    // 수정할 데이터
-    const updatedData = {
+    // 입력이 없는 필드에 기존 데이터 기본값 설정
+    const name =
+      userData.name !== undefined ? userData.name : existingUser.name;
+    const age = userData.age !== undefined ? userData.age : existingUser.age;
+    const email =
+      userData.email !== undefined ? userData.email : existingUser.email;
+    const password =
+      userData.password !== undefined
+        ? userData.password
+        : existingUser.password;
+
+    console.log("기존 사용자 정보:", existingUser);
+    console.log("변경된 사용자 정보:", { name, age, email });
+
+    // 사용자 정보 업데이트
+    const updatedUser = await User.updateUser(currentEmail, {
       name,
       age,
       email,
-    };
-
-    // 사용자 정보 수정
-    const updatedUserData = await User.updateUser(currentEmail, updatedData);
-    return updatedUserData;
+      password,
+    });
+    return updatedUser;
   }
 }
 
