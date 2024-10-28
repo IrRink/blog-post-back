@@ -10,5 +10,4 @@ router.post("/login", userController.loginUser);
 router.post("/logout", userController.logoutUser);
 router.get("/checkEmail", userController.checkEmail); // 수정된 부분
 
-router.put("/updateProfile", authenticateJWT, userController.updateUser);
 module.exports = router;

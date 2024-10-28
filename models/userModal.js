@@ -36,5 +36,16 @@ class User {
     const [result] = await pool.execute(sql, values);
     return result; // 업데이트 결과 반환
   }
+
+  static async deleteByEmail(email) {
+    const sql = `
+      DELETE FROM users
+      WHERE email = ?
+    `;
+    const values = [email];
+
+    const [result] = await pool.execute(sql, values);
+    return result;
+  }
 }
 module.exports = User;

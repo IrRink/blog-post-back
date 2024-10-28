@@ -106,3 +106,22 @@ exports.updateUser = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+exports.deleteUser = async (req, res) => {
+  const currentEmail = req.email; // 토큰에서 추출된 이메일
+  console.log("삭제 요청된 이메일:", currentEmail); // 이메일 로그 추가
+
+  if (!currentEmail) {
+    return res.status(400).json({ error: "이메일이 필요합니다." });
+  }
+
+  try {
+    const result = await UserService.deleteUser(currentEmail);
+    res.status(200).json({
+      message: "회원 정보가 성공적으로 삭제되었습니다.",
+    });
+  } catch (error) {
+    console.error("회원 정보 삭제 중 오류 발생:", error.message);
+    res.status(400).json({ error: error.message });
+  }
+};

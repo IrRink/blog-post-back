@@ -183,6 +183,20 @@ class UserService {
     });
     return updatedUser;
   }
+  static async deleteUser(email) {
+    const sql = `
+      DELETE FROM users
+      WHERE email = ?
+    `;
+    const values = [email];
+
+    const [result] = await pool.execute(sql, values);
+    console.log("삭제된 사용자 수:", result.affectedRows); // 삭제된 행 수 로그 추가
+    if (result.affectedRows === 0) {
+      throw new Error("삭제할 사용자를 찾을 수 없습니다.");
+    }
+    return result; // 삭제 결과 반환
+  }
 }
 
 module.exports = UserService;
