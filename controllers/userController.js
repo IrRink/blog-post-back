@@ -78,12 +78,17 @@ exports.getUserInfo = async (req, res) => {
     console.error("사용자 정보 조회 중 오류 발생:", error.message);
 
     // 인증 실패에 따른 403 에러 처리
-    if (error.message === "유효하지 않은 토큰입니다.") {
+    if (error.message.includes("유효하지 않은 토큰입니다.")) {
       return res.status(403).json({ message: "토큰이 만료되었습니다." });
     }
 
     // 사용자 찾기 실패에 따른 404 에러 처리
-    res.status(404).json({ message: error.message });
+    if (error.message.includes("사용자를 찾을 수 없습니다.")) {
+      return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+    }
+
+    // 기본적인 오류 처리 (기타 오류에 대해 500 상태 코드 반환)
+    res.status(500).json({ message: "서버에서 오류가 발생했습니다." });
   }
 };
 
@@ -125,6 +130,7 @@ exports.deleteUser = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
 exports.resetPassword = async (req, res) => {
   const { email } = req.body;
 
