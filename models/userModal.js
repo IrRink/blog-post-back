@@ -23,6 +23,7 @@ class User {
     );
     return rows[0].count > 0; // 존재하면 true 반환
   }
+
   static async updateUser(email, data) {
     const { name, age } = data; // 업데이트할 데이터 추출
     await pool.execute("UPDATE users SET name = ?, age = ? WHERE email = ?", [

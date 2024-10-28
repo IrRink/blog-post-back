@@ -35,7 +35,7 @@ class UserService {
     }
 
     // 이메일 중복 확인
-    const existingUser = await User.findByEmail(email);
+    const existingUser = await User.findByEmail(email); // 여기서 중복 확인
     if (existingUser) {
       throw new Error("이미 존재하는 이메일입니다.");
     }
@@ -48,6 +48,10 @@ class UserService {
 
     // 유저 생성
     return await User.create(email, name, age, hashedPassword, userRole);
+  }
+
+  static async checkEmailExists(email) {
+    return await User.checkEmailExists(email);
   }
 
   // 사용자 정보 업데이트
