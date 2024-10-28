@@ -12,7 +12,7 @@ const {
   
     try {
       await writeComment(comment_text, req.user, req.email, boardId);
-      res.status(201).json({ message: "댓글이 성공적으로 추가되었습니다!" });
+      res.status(201).json("댓글이 성공적으로 추가되었습니다!" );
     } catch (error) {
       console.error("댓글 작성 중 오류 발생:", error);
       res.status(500).json({ message: "댓글 작성 중 오류가 발생했습니다." });
@@ -39,7 +39,7 @@ const {
   
     try {
       await editComment(commentId, comment_text, req.email, req.role);
-      res.json({ message: "댓글이 성공적으로 수정되었습니다!" });
+      res.json("댓글이 성공적으로 수정되었습니다!");
     } catch (error) {
       console.error("댓글 수정 중 오류 발생:", error);
       res.status(500).json({ message: "댓글 수정 중 오류가 발생했습니다." });
@@ -52,7 +52,7 @@ const {
   
     try {
       await removeComment(commentId, req.email, req.role);
-      res.json({ message: "댓글이 성공적으로 삭제되었습니다!" });
+      res.json("댓글이 성공적으로 삭제되었습니다!" );
     } catch (error) {
       console.error("댓글 삭제 중 오류 발생:", error);
       res.status(500).json({ message: "댓글 삭제 중 오류가 발생했습니다." });

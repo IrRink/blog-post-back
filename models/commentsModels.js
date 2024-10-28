@@ -21,7 +21,7 @@ const selectCommentId = async (commentId) => {
 
 // 댓글 수정
 const updateComment = async (commentId, comment_text) => {
-  const updateQuery = `UPDATE comments SET comment_text = ?, uptime = CURRENT_TIMESTAMP WHERE id = ?`;
+  const updateQuery = `UPDATE comments SET comment_text = ? WHERE id = ?`;
   await executeQuery(updateQuery, [comment_text, commentId]);
 };
 
