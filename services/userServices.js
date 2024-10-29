@@ -244,5 +244,13 @@ class UserService {
 
     return temporaryPassword; // 임시 비밀번호 반환
   }
+  static async findEmail(name, age, securityQuestion, securityAnswer) {
+    return await User.findEmailBySecurityInfo(
+      name,
+      age,
+      securityQuestion,
+      securityAnswer
+    );
+  }
 }
 module.exports = UserService;

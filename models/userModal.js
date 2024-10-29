@@ -90,6 +90,27 @@ class User {
     const sql = `UPDATE users SET password = ? WHERE email = ?`;
     await pool.execute(sql, [hashedPassword, email]); // 비밀번호 업데이트
   }
+  static async findEmailBySecurityInfo(
+    name,
+    age,
+    securityQuestion,
+    securityAnswer
+  ) {
+    const sql = `
+        SELECT email FROM users
+        WHERE name = ? AND age = ? AND security_question = ? AND security_answer = ?
+    `;
+    const [rows] = await pool.execute(sql, [
+      name,
+      age,
+      securityQuestion,
+      securityAnswer,
+    ]);
+    if (rows.length === 0) {
+      throw new Error("입력된 정보와 일치하는 사용자가 없습니다.");
+    }
+    return rows[0].email; // 이메일 반환
+  }
 }
 
 module.exports = User;

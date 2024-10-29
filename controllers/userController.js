@@ -154,3 +154,19 @@ exports.resetPassword = async (req, res) => {
     res.status(404).json({ error: error.message });
   }
 };
+exports.findEmail = async (req, res) => {
+  const { name, age, securityQuestion, securityAnswer } = req.body;
+
+  try {
+    const email = await UserService.findEmail(
+      name,
+      age,
+      securityQuestion,
+      securityAnswer
+    );
+    res.status(200).json({ email });
+  } catch (error) {
+    console.error("이메일 찾기 오류:", error.message);
+    res.status(400).json({ error: error.message });
+  }
+};
