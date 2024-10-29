@@ -3,17 +3,24 @@ const UserService = require("../services/userServices"); // UserService 모듈�
 
 // 어드민 등록 함수
 exports.registerAdmin = async (req, res) => {
-  const { email, name, age, password } = req.body;
+  const { email, name, age, password, securityQuestion, securityAnswer } =
+    req.body;
 
   try {
-    await AdminService.registerAdmin(email, name, age, password);
+    await AdminService.registerAdmin(
+      email,
+      name,
+      age,
+      password,
+      securityQuestion,
+      securityAnswer
+    );
     res.status(201).json("어드민 등록 성공");
   } catch (error) {
     console.error("어드민 등록 오류:", error.message);
     res.status(400).json({ error: error.message });
   }
 };
-
 // 어드민 로그인 함수
 exports.loginAdmin = async (req, res) => {
   const { email, password } = req.body;

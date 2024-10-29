@@ -9,13 +9,19 @@ const bcrypt = require("bcrypt"); // bcrypt 라이브러리 가져오기
 
 class AdminService {
   // 관리자 등록
-  static async registerAdmin(email, name, age, password) {
+  static async registerAdmin(
+    email,
+    name,
+    age,
+    password,
+    securityQuestion,
+    securityAnswer
+  ) {
     // 관리자 존재 여부 확인
     const adminExists = await Admin.exists();
     if (adminExists) {
-      throw new Error("이미 관리자가 등록되어 있습니다."); // 관리자가 존재하면 등록 금지
+      throw new Error("이미 관리자가 등록되어 있습니다.");
     }
-
     // 필드 유효성 검사
     AdminService.validateAdminFields(email, name, age, password);
 
@@ -29,7 +35,14 @@ class AdminService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // 해싱된 비밀번호로 관리자 생성
-    return await Admin.create(email, name, age, hashedPassword);
+    return await Admin.create(
+      email,
+      name,
+      age,
+      hashedPassword,
+      securityQuestion,
+      securityAnswer
+    );
   }
 
   // 유효성 검사 메서드

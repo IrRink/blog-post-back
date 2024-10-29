@@ -2,10 +2,18 @@ const pool = require("./pool");
 const bcrypt = require("bcrypt");
 
 class User {
-  static async create(email, name, age, password, role) {
+  static async create(
+    email,
+    name,
+    age,
+    password,
+    role,
+    securityQuestion,
+    securityAnswer
+  ) {
     const [result] = await pool.execute(
-      "INSERT INTO users (email, name, age, password, role, created_date) VALUES (?, ?, ?, ?, ?, NOW())",
-      [email, name, age, password, role] // 비밀번호가 해싱된 상태로 넘어온다
+      "INSERT INTO users (email, name, age, password, role, created_date, security_question, security_answer) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)",
+      [email, name, age, password, role, securityQuestion, securityAnswer]
     );
     return result;
   }

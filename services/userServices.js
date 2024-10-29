@@ -13,9 +13,24 @@ const {
 
 class UserService {
   // 사용자 등록
-  static async registerUser(email, name, age, password, role) {
+  static async registerUser(
+    email,
+    name,
+    age,
+    password,
+    role,
+    securityQuestion,
+    securityAnswer
+  ) {
     // 필수 필드가 비어있는지 확인
-    if (!email || !name || !age || !password) {
+    if (
+      !email ||
+      !name ||
+      !age ||
+      !password ||
+      !securityQuestion ||
+      !securityAnswer
+    ) {
       throw new Error("필수 필드가 비어 있습니다.");
     }
 
@@ -48,7 +63,15 @@ class UserService {
     const userRole = role || "user";
 
     // 유저 생성
-    return await User.create(email, name, age, hashedPassword, userRole);
+    return await User.create(
+      email,
+      name,
+      age,
+      hashedPassword,
+      userRole,
+      securityQuestion,
+      securityAnswer
+    );
   }
 
   static async checkEmailExists(email) {

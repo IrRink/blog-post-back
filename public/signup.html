@@ -16,6 +16,21 @@
       <input type="password" id="password" placeholder="비밀번호" required />
 
       <label> <input type="checkbox" id="isAdmin" /> 어드민으로 등록 </label>
+      <br />
+
+      <label for="securityQuestion">보안 질문:</label>
+      <select id="securityQuestion" required>
+        <option value="" disabled selected>질문을 선택하세요</option>
+        <option value="pet">
+          당신의 첫 번째 애완동물의 이름은 무엇인가요?
+        </option>
+        <option value="school">
+          당신이 졸업한 초등학교의 이름은 무엇인가요?
+        </option>
+        <option value="city">당신이 태어난 도시는 어디인가요?</option>
+      </select>
+      <br />
+      <input type="text" id="securityAnswer" placeholder="답변" required />
 
       <button type="submit">가입하기</button>
     </form>
@@ -26,9 +41,14 @@
       document.getElementById("checkEmailButton").onclick = function () {
         const email = document.getElementById("email").value;
 
+        if (!email) {
+          alert("이메일을 입력하세요.");
+          return;
+        }
+
         // GET 요청으로 이메일 중복 확인
         axios
-          .get(`http://localhost:5500/user/checkEmail?email=${email}`)
+          .get(`http://localhost:8080/api/users/checkEmail?email=${email}`)
           .then((response) => {
             const message = response.data.exists
               ? "이미 사용 중인 이메일입니다."
@@ -51,15 +71,25 @@
         const age = document.getElementById("age").value;
         const password = document.getElementById("password").value;
         const isAdmin = document.getElementById("isAdmin").checked;
+        const securityQuestion =
+          document.getElementById("securityQuestion").value;
+        const securityAnswer = document.getElementById("securityAnswer").value;
 
         // 어드민 등록 여부에 따라 API 엔드포인트 선택
         const endpoint = isAdmin
-          ? "http://localhost:5500/admin/adduseroradmin"
-          : "http://localhost:5500/user/adduseroruser";
+          ? "http://localhost:8080/api/admin/signup"
+          : "http://localhost:8080/api/users/signup";
 
         // POST 요청으로 회원가입 진행
         axios
-          .post(endpoint, { email, name, age, password })
+          .post(endpoint, {
+            email,
+            name,
+            age,
+            password,
+            securityQuestion,
+            securityAnswer,
+          })
           .then((response) => {
             console.log("가입 성공:", response.data);
             alert("가입이 완료되었습니다. 로그인 해주세요.");

@@ -21,10 +21,17 @@ class Admin {
   }
 
   // 관리자 등록 (role은 'admin'으로 설정)
-  static async create(email, name, age, password) {
+  static async create(
+    email,
+    name,
+    age,
+    password,
+    securityQuestion,
+    securityAnswer
+  ) {
     const [result] = await pool.execute(
-      "INSERT INTO users (email, name, age, password, role, created_date) VALUES (?, ?, ?, ?, ?, NOW())",
-      [email, name, age, password, "admin"]
+      "INSERT INTO users (email, name, age, password, role, created_date, security_question, security_answer) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)",
+      [email, name, age, password, "admin", securityQuestion, securityAnswer]
     );
     return result;
   }

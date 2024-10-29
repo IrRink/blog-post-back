@@ -2,10 +2,19 @@ const UserService = require("../services/userServices"); // UserService 모듈�
 
 // 회원가입 함수
 exports.registerUser = async (req, res) => {
-  const { email, name, age, password } = req.body;
+  const { email, name, age, password, securityQuestion, securityAnswer } =
+    req.body;
 
   try {
-    await UserService.registerUser(email, name, age, password); // role은 기본값으로 'user'
+    await UserService.registerUser(
+      email,
+      name,
+      age,
+      password,
+      "user",
+      securityQuestion,
+      securityAnswer
+    );
     res.status(201).json("회원가입 성공");
   } catch (error) {
     console.error("회원가입 오류:", error.message);
