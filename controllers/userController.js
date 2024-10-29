@@ -1,5 +1,5 @@
 const UserService = require("../services/userServices"); // UserService 모듈을 불러옴
-
+const User = require("../models/userModal");
 // 회원가입 함수
 exports.registerUser = async (req, res) => {
   const { email, name, age, password, securityQuestion, securityAnswer } =
@@ -165,7 +165,7 @@ exports.findEmail = async (req, res) => {
   console.log("요청 받은 데이터:", req.body); // 요청 데이터 확인용
 
   try {
-    const email = await UserService.findEmail(
+    const email = await User.findEmailBySecurityInfo(
       name,
       age,
       securityQuestion,
