@@ -93,7 +93,7 @@ exports.getUserInfo = async (req, res) => {
 };
 
 exports.updateUser = async (req, res) => {
-  const currentEmail = req.email; // 토큰에서 추출된 이메일
+  const currentEmail = req.user.email || req.email; // 가능한 모든 케이스를 확인
   const userData = req.body; // 사용자 요청 데이터 (수정할 데이터)
 
   console.log("수정할 데이터:", userData);

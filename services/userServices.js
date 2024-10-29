@@ -147,10 +147,7 @@ class UserService {
     const age = userData.age !== undefined ? userData.age : existingUser.age;
     const email =
       userData.email !== undefined ? userData.email : existingUser.email;
-    let password =
-      userData.password !== undefined
-        ? userData.password
-        : existingUser.password;
+    let password = existingUser.password; // 기본적으로 기존 비밀번호 유지
 
     // 정규 표현식 검사
     if (userData.email && !emailRegex.test(userData.email)) {
@@ -166,24 +163,25 @@ class UserService {
       throw new Error("유효하지 않은 비밀번호 형식입니다.");
     }
 
-    // 비밀번호 해시 처리
-    if (userData.password) {
+    // 비밀번호 해시 처리 (빈 문자열일 경우 제외)
+    if (userData.password && userData.password.trim() !== "") {
       const salt = await bcrypt.genSalt(10);
-      password = await bcrypt.hash(password, salt);
+      password = await bcrypt.hash(userData.password, salt);
     }
 
     console.log("기존 사용자 정보:", existingUser);
     console.log("변경된 사용자 정보:", { name, age, email });
 
     // 사용자 정보 업데이트
-    const updatedUser = await User.updateUser(currentEmail, {
-      name,
-      age,
-      email,
-      password,
-    });
+    const updatedUserData = { name, age, email };
+    if (userData.password && userData.password.trim() !== "") {
+      updatedUserData.password = password; // 비밀번호 변경 시에만 추가
+    }
+
+    const updatedUser = await User.updateUser(currentEmail, updatedUserData);
     return updatedUser;
   }
+
   static async deleteUser(email) {
     const sql = `
       DELETE FROM users
