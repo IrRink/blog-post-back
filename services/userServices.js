@@ -148,7 +148,7 @@ class UserService {
       throw new Error("사용자 정보 조회 중 오류가 발생했습니다.");
     }
   }
-
+  // 사용자 정보수정
   static async updateUserInfo(currentEmail, userData) {
     // 기존 사용자 정보 가져오기
     const existingUser = await User.findByEmail(currentEmail);
@@ -204,7 +204,7 @@ class UserService {
     const updatedUser = await User.updateUser(currentEmail, updatedUserData);
     return updatedUser;
   }
-
+  // 사용자 계정 삭제
   static async deleteUser(email) {
     const sql = `
       DELETE FROM users
@@ -220,37 +220,34 @@ class UserService {
     return result; // 삭제 결과 반환
   }
 
-  // 임시 비밀번호 생성 함수
+  // 임시 비밀번호 생성
   static generateTemporaryPassword(length = 8) {
-    return crypto.randomBytes(length).toString("hex").slice(0, length);
+    return crypto
+      .randomBytes(Math.ceil(length / 2))
+      .toString("hex")
+      .slice(0, length);
   }
 
-  // 비밀번호 재설정 메서드
-  static async resetPassword(email) {
-    const temporaryPassword = this.generateTemporaryPassword();
-
-    // 임시 비밀번호를 해시화
-    const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
-
-    // 해시화된 임시 비밀번호를 DB에 저장
-    const sql = `UPDATE users SET password = ? WHERE email = ?`;
-    const values = [hashedPassword, email];
-
-    const [result] = await pool.execute(sql, values);
-
-    if (result.affectedRows === 0) {
+  // 임시비밀번호
+  static async resetPassword(email, securityQuestion, securityAnswer) {
+    const user = await User.findByEmail(email);
+    if (!user) {
       throw new Error("사용자를 찾을 수 없습니다.");
     }
 
+    if (
+      user.security_question !== securityQuestion ||
+      user.security_answer !== securityAnswer
+    ) {
+      throw new Error("보안 질문 또는 답변이 일치하지 않습니다.");
+    }
+
+    const temporaryPassword = this.generateTemporaryPassword();
+    const hashedPassword = await bcrypt.hash(temporaryPassword, 10); // 비밀번호 해시화
+
+    await User.updatePassword(email, hashedPassword); // 모델의 비밀번호 업데이트 메서드 호출
+
     return temporaryPassword; // 임시 비밀번호 반환
-  }
-  static async findEmail(name, age, securityQuestion, securityAnswer) {
-    return await User.findEmailBySecurityInfo(
-      name,
-      age,
-      securityQuestion,
-      securityAnswer
-    );
   }
 }
 module.exports = UserService;

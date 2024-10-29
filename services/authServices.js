@@ -22,6 +22,8 @@ const authService = {
       throw error; // 에러 발생 시 throw로 전달
     }
   },
+
+  // 관리자 이메일 가지고 옴
   getAdminEmail: async () => {
     const adminEmail = await authModel.getAdminEmail(); // 관리자 이메일 가져오기
     return adminEmail;

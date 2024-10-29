@@ -14,6 +14,7 @@ const authController = {
       }); // 서버 에러 응답
     }
   },
+  // 관리자 이름가지고 오기
   getAdminName: async (req, res) => {
     try {
       const adminName = await authService.getAdminName(); // 관리자 이름 가져오기
@@ -26,6 +27,7 @@ const authController = {
       res.status(500).json({ error: "관리자 이름을 가져오는 중 오류 발생" }); // 에러 응답
     }
   },
+  // 관리자 이메일 가지고 오기
   getAdminEmail: async (req, res) => {
     try {
       const adminEmail = await authService.getAdminEmail(); // 서비스에서 관리자 이메일 가져오기

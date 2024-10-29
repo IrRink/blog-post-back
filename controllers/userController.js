@@ -78,7 +78,7 @@ exports.checkEmail = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
+// 사용자조회
 exports.getUserInfo = async (req, res) => {
   try {
     const user = await UserService.getUserInfo(req); // req를 전달하여 서비스에서 토큰 추출
@@ -100,7 +100,7 @@ exports.getUserInfo = async (req, res) => {
     res.status(500).json({ message: "서버에서 오류가 발생했습니다." });
   }
 };
-
+// 정보수정
 exports.updateUser = async (req, res) => {
   const currentEmail = req.user.email || req.email; // 가능한 모든 케이스를 확인
   const userData = req.body; // 사용자 요청 데이터 (수정할 데이터)
@@ -120,7 +120,7 @@ exports.updateUser = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-
+// 계정삭제
 exports.deleteUser = async (req, res) => {
   const currentEmail = req.email; // 토큰에서 추출된 이메일
   console.log("삭제 요청된 이메일:", currentEmail); // 이메일 로그 추가
@@ -139,12 +139,16 @@ exports.deleteUser = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-
+// 임시 비밀번호
 exports.resetPassword = async (req, res) => {
-  const { email } = req.body;
+  const { email, securityQuestion, securityAnswer } = req.body;
 
   try {
-    const temporaryPassword = await UserService.resetPassword(email);
+    const temporaryPassword = await UserService.resetPassword(
+      email,
+      securityQuestion,
+      securityAnswer
+    );
     res.status(200).json({
       message: "임시 비밀번호가 생성되었습니다.",
       temporaryPassword,
@@ -154,6 +158,7 @@ exports.resetPassword = async (req, res) => {
     res.status(404).json({ error: error.message });
   }
 };
+// 이메일 찾기
 exports.findEmail = async (req, res) => {
   const { name, age, securityQuestion, securityAnswer } = req.body;
 
