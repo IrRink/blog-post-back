@@ -123,12 +123,10 @@ class User {
       securityQuestion,
       securityAnswer,
     ]);
-
-    // 조건에 맞는 사용자가 없을 경우 에러 반환
     if (rows.length === 0) {
       throw new Error("입력된 정보와 일치하는 사용자가 없습니다.");
     }
-    return rows[0].email; // 일치하는 사용자의 이메일 반환
+    return rows[0].email; // 이메일 반환
   }
 }
 

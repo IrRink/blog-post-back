@@ -162,6 +162,8 @@ exports.resetPassword = async (req, res) => {
 exports.findEmail = async (req, res) => {
   const { name, age, securityQuestion, securityAnswer } = req.body;
 
+  console.log("요청 받은 데이터:", req.body); // 요청 데이터 확인용
+
   try {
     const email = await UserService.findEmail(
       name,
