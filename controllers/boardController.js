@@ -9,9 +9,9 @@ const {
 //게시물 작성
 exports.insertBoard = async (req, res) => {
   const { title, sub_title, board_text } = req.body;
-  const userId = req.user;
+
   try {
-    await writingBoard(title, sub_title, board_text, userId, req.role);
+    await writingBoard(title, sub_title, board_text, req.id, req.role);
     res.status(201).json({ message: "게시물이 성공적으로 추가되었습니다!" });
   } catch (error) {
     console.error("게시물 추가 중 오류 발생:", error);

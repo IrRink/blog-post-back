@@ -1,9 +1,9 @@
 const { insertBoard, selectBoard, selectIdBoard, updateBoard, deleteBoard } = require("../models/boardModels");
 
 // 게시물 저장
-const writingBoard = async (title, sub_title, board_text, userId, role) => {
+const writingBoard = async (title, sub_title, board_text, id, role) => {
     if (role == "user")throw new Error("관리자가 아닙니다");
-    await insertBoard(title, sub_title, board_text, userId);
+    await insertBoard(title, sub_title, board_text, id);
 };
 
 // 게시물 전체 조회

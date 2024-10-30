@@ -1,21 +1,27 @@
 const { executeQuery } = require("./executeQuery");
 
 // 게시물 저장
-const insertBoard = async (title, sub_title, board_text, userId) => {
+const insertBoard = async (title, sub_title, board_text, id) => {
   const insertQuery =
-    "INSERT INTO boardtable (title, sub_title, board_text, writer) VALUES (?, ?, ?, ?)";
-  await executeQuery(insertQuery, [title, sub_title, board_text, userId]);
+    "INSERT INTO boardtable (title, sub_title, board_text, user_id) VALUES (?, ?, ?, ?)";
+  await executeQuery(insertQuery, [title, sub_title, board_text, id]);
 };
 
 // 게시물 전체 조회
 const selectBoard = async () => {
-  const selectquerie = "SELECT * FROM boardtable ORDER BY uptime DESC";
+  const selectquerie = `SELECT boardtable.id, boardtable.title, boardtable.sub_title, boardtable.uptime, users.name
+  FROM boardtable 
+  JOIN users ON users.id = boardtable.user_id
+  ORDER BY uptime DESC`;
   return await executeQuery(selectquerie);
 };
 
 // 개별 게시물 조회
 const selectIdBoard = async (num) => {
-  const numSelectQuery = "SELECT * FROM boardtable WHERE id = ?";
+  const numSelectQuery = `SELECT boardtable.id, boardtable.title, boardtable.sub_title, boardtable.board_text, boardtable.uptime, users.name 
+  FROM boardtable 
+  JOIN users ON users.id = boardtable.user_id
+  WHERE boardtable.id = ?`;
   const results = await executeQuery(numSelectQuery, [num]);
   return results[0];
 };
@@ -23,7 +29,7 @@ const selectIdBoard = async (num) => {
 // 게시물 수정
 const updateBoard = async (num, title, sub_title, board_text) => {
   const updateQuery =
-    "UPDATE boardtable SET title = ?, sub_title = ?, board_text = ? WHERE id = ?";
+    "UPDATE boardtable SET title = ?, sub_title = ?, board_text = ?, uptime = now() WHERE id = ?";
   await executeQuery(updateQuery, [title, sub_title, board_text, num]);
 };
 

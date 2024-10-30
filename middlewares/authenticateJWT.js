@@ -23,6 +23,7 @@ const authenticateJWT = async (req, res, next) => {
     req.user = user.name;
     req.role = user.role;
     req.email = user.email;
+    req.id = user.id;
 
     next();
   } catch (err) {

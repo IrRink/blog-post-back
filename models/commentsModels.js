@@ -1,14 +1,18 @@
 const { executeQuery } = require("./executeQuery");
 
 // 댓글 작성
-const insertComment = async (comment_text, user, email, boardId) => {
-  const insertQuery = `INSERT INTO comments (comment_text, writer_name, writer_email, board_id) VALUES (?, ?, ?, ?)`;
-  await executeQuery(insertQuery, [comment_text, user, email, boardId]);
+const insertComment = async (comment_text, boardId,id) => {
+  const insertQuery = `INSERT INTO comments (comment_text, board_id, user_id) VALUES (?, ?, ?)`;
+  await executeQuery(insertQuery, [comment_text, boardId, id]);
 };
 
 // 게시물 댓글 조회
 const selectComments = async (boardId) => {
-  const selectQuery = `SELECT * FROM comments WHERE board_id = ? ORDER BY uptime DESC`;
+  const selectQuery = 
+  `SELECT comments.comment_text, comments.uptime, users.name
+  FROM comments 
+  JOIN users ON users.id = comments.user_id 
+  WHERE board_id = ? ORDER BY uptime DESC`;
   return await executeQuery(selectQuery, [boardId]);
 };
 
@@ -21,7 +25,7 @@ const selectCommentId = async (commentId) => {
 
 // 댓글 수정
 const updateComment = async (commentId, comment_text) => {
-  const updateQuery = `UPDATE comments SET comment_text = ? WHERE id = ?`;
+  const updateQuery = `UPDATE comments SET comment_text = ?, uptime = now() WHERE id = ?`;
   await executeQuery(updateQuery, [comment_text, commentId]);
 };
 
