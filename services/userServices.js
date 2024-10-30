@@ -51,11 +51,8 @@ class UserService {
     }
 
     // 이메일 중복 확인
-    const existingUser = await User.findByEmail(email); // 여기서 중복 확인
-    if (existingUser) {
-      throw new Error("이미 존재하는 이메일입니다.");
-    }
-
+    const existingUser = await User.findByEmail(email);
+    if (existingUser) throw new Error("이미 존재하는 이메일입니다.");
     // 비밀번호 해싱
     const hashedPassword = await bcrypt.hash(password, 10);
 

@@ -4,6 +4,17 @@ const crypto = require("crypto");
 
 class User {
   // 새 사용자 생성 메서드
+  static async getNextAvailableId() {
+    const sql = `
+      SELECT id + 1 AS next_id FROM users 
+      WHERE (id + 1) NOT IN (SELECT id FROM users) 
+      ORDER BY id LIMIT 1
+    `;
+    const [rows] = await pool.execute(sql);
+    return rows.length > 0 ? rows[0].next_id : 2; // id가 없으면 2부터 시작
+  }
+
+  // 사용자 생성 메서드 수정
   static async create(
     email,
     name,
@@ -13,12 +24,22 @@ class User {
     securityQuestion,
     securityAnswer
   ) {
-    // 새로운 사용자를 데이터베이스의 users 테이블에 삽입
+    // 관리자가 아니면 다음 사용 가능한 ID 할당
+    let userId = role === "admin" ? 1 : await User.getNextAvailableId();
     const [result] = await pool.execute(
-      "INSERT INTO users (email, name, age, password, role, created_date, security_question, security_answer) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)",
-      [email, name, age, password, role, securityQuestion, securityAnswer]
+      "INSERT INTO users (id, email, name, age, password, role, created_date, security_question, security_answer) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?)",
+      [
+        userId,
+        email,
+        name,
+        age,
+        password,
+        role,
+        securityQuestion,
+        securityAnswer,
+      ]
     );
-    return result; // 생성된 사용자의 삽입 결과 반환
+    return result;
   }
 
   // 이메일로 사용자 찾기 메서드
