@@ -6,12 +6,12 @@ class User {
   // 새 사용자 생성 메서드
   static async getNextAvailableId() {
     const sql = `
-      SELECT id + 1 AS next_id FROM users 
-      WHERE (id + 1) NOT IN (SELECT id FROM users) 
-      ORDER BY id LIMIT 1
+      SELECT MIN(id + 1) AS next_id 
+      FROM users 
+      WHERE (id + 1) NOT IN (SELECT id FROM users)
     `;
     const [rows] = await pool.execute(sql);
-    return rows.length > 0 ? rows[0].next_id : 2; // id가 없으면 2부터 시작
+    return rows.length > 0 && rows[0].next_id !== null ? rows[0].next_id : 2; // id가 없으면 2부터 시작
   }
 
   // 사용자 생성 메서드 수정
