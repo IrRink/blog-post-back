@@ -9,7 +9,7 @@ const insertComment = async (comment_text, boardId,id) => {
 // 게시물 댓글 조회
 const selectComments = async (boardId) => {
   const selectQuery = 
-  `SELECT comments.comment_text, comments.uptime, users.name
+  `SELECT comments.id, comments.comment_text, comments.uptime, users.name
   FROM comments 
   JOIN users ON users.id = comments.user_id 
   WHERE board_id = ? ORDER BY uptime DESC`;
