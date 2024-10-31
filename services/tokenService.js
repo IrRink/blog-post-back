@@ -5,7 +5,7 @@ const generateToken = (email) => {
   if (!process.env.JWT_SECRET) {
     throw new Error("JWT 시크릿 키가 설정되지 않았습니다.");
   }
-  return jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "15m" });
+  return jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "30m" });
 };
 
 // 토큰 검증 기능
