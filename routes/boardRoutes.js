@@ -5,7 +5,7 @@ const authenticateJWT = require("../middlewares/authenticateJWT");
 const { checkSpaces } = require("../middlewares/checkSpaces");
 
 // 게시물 저장
-router.post("/", authenticateJWT, boardController.insertBoard);
+router.post("/", authenticateJWT, checkSpaces, boardController.insertBoard);
 
 // 게시물 전체 조회
 router.get("/", boardController.selectBoard);
