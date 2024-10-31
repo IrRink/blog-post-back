@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const boardController = require("../controllers/boardController");
 const authenticateJWT = require("../middlewares/authenticateJWT");
-const { validateBoard } = require("../middlewares/validationMiddlewares");
+const { checkSpaces } = require("../middlewares/checkSpaces");
 
 // 게시물 저장
 router.post("/", authenticateJWT, boardController.insertBoard);
@@ -14,7 +14,7 @@ router.get("/", boardController.selectBoard);
 router.get("/:num", boardController.selectIdBoard);
 
 // 게시물 수정
-router.put("/:num", authenticateJWT, validateBoard, boardController.updateBoard);
+router.put("/:num", authenticateJWT, checkSpaces, boardController.updateBoard);
 
 // 게시물 삭제
 router.delete("/:num", authenticateJWT, boardController.deleteBoard);
