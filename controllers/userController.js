@@ -165,7 +165,7 @@ exports.findEmail = async (req, res) => {
   console.log("요청 받은 데이터:", req.body); // 요청 데이터 확인용
 
   try {
-    const email = await User.findEmailBySecurityInfo(
+    const email = await UserService.getEmailBySecurityInfo(
       name,
       age,
       securityQuestion,

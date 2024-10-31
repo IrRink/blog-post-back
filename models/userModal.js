@@ -144,11 +144,7 @@ class User {
       securityQuestion,
       securityAnswer,
     ]);
-    if (rows.length === 0) {
-      throw new Error("입력된 정보와 일치하는 사용자가 없습니다.");
-    }
-    return rows[0].email; // 이메일 반환
+    return rows; // 이메일 반환
   }
 }
-
 module.exports = User;

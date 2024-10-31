@@ -246,5 +246,22 @@ class UserService {
 
     return temporaryPassword; // 임시 비밀번호 반환
   }
+  static async getEmailBySecurityInfo(
+    name,
+    age,
+    securityQuestion,
+    securityAnswer
+  ) {
+    const rows = await User.findEmailBySecurityInfo(
+      name,
+      age,
+      securityQuestion,
+      securityAnswer
+    );
+    if (rows.length === 0) {
+      throw new Error("입력된 정보와 일치하는 사용자가 없습니다.");
+    }
+    return rows[0].email; // 이메일 반환
+  }
 }
 module.exports = UserService;
